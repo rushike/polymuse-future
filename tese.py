@@ -1,0 +1,399 @@
+from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2, evaluation, constant
+# from polymuse import multi_track
+
+
+# from polymuse import rnn, rnn_player
+# from polymuse import drawer
+
+from matplotlib import pyplot as plt
+
+# from polymuse import builder, player
+# from polymuse import pattern
+
+# from scipy.interpolate import make_interp_spline, BSpline
+import numpy, random
+
+import gc
+import warnings
+warnings.filterwarnings("ignore")
+
+
+"""
+Test to understand NoteSequence
+"""
+
+f1 = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Believer_-_Imagine_Dragons.mid'
+f1 = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Fur_Elise_by_Ludwig_Van_Beethoven.mid'
+f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\second_track.mid'
+f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\drum_test.mid'
+f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Drummer_Piano.mid'
+# f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\drum_sync.mid'
+# f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\dataset.mid'
+# f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\test.mid'
+
+# ns = dataset.to_array(f)
+ns = dataset.to_note_sequence(f)
+# # print(ns)
+# ins = dataset.get_instrument(ns, 0)
+ar = dataset.ns_to_tarray(ns, resolution=64)
+print(ar, ar.shape)
+
+sflatroll = d2.ns_tarray_to_sFlatroll(ar)
+
+tarr = d2.sFlatroll_to_ns_tarray(sflatroll)
+
+
+print(sflatroll, sflatroll.shape, '--- sflatroll .. ')
+
+# print("ar : ", ar.shape, "--tarray")
+# s = dataset.tarray_to_sFlat_roll(ar)
+
+"""
+
+
+"""
+# p, y = d2.sync_tarray(ar[:1], ar[1:2])
+
+# print(p, y, "-- p, y")
+# for i in range(p.shape[0]):
+#     print(p[i], y[i])
+"""
+drum test
+"""
+
+# print(ar , "--tarray")
+
+# rl = d2.tarray_to_sFlat_roll(ar, 3)
+
+# flat = dataset.ns_tarray_to_sFlat(ar, 3)
+
+# print(flat, 'roll')
+
+
+"""
+model loader -- multitrack
+"""
+
+# mo = multi_track.get_3_multitrack()
+# t_array = multi_track.play_multitrack(mo[0], mo[1], mo[2], predict_instances=400)
+# print(t_array, t_array.shape, "--t_array")
+
+# ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= ['piano', 'guitar','choir aahs'], drm = 2)
+# # print(ns_)
+# ct, st = 0, -1
+# for n in ns_.notes:
+#     if st != n.instrument:
+#         st = n.instrument
+#         ct +=1
+
+# print("st, ct", st, ct)
+# m_path = "F:\\rushikesh\\project\\polymuse-future\\midis\\multi\\" + "secomd_multitrack_v2.mid"
+
+# dataset.ns_to_midi(ns_, m_path)
+
+
+"""
+Sync multi track
+"""
+# mo = multi_track.get_3_multitrack()
+# # multi_track.sync_play_multitrack(mo[0], mo[1], mo[2], ini = None)
+# # ip_pat = random.choice([pattern.ip_patterns])
+
+# # trr = d2.ip_patterns_to_tarray(ip_pat)
+# # print(trr, "--trr")
+# # print("trr >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> : ", trr.shape)
+
+# # fal = d2.ip_patterns_to_sFlat(ip_pat, DEPTH = 1)
+# # print("flat >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> : ", fal.shape)
+
+# # en = d2.ip_patterns_to_octave(ip_pat)
+# # print("enc >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> : ", en.shape)
+# # print(random.choice(pattern.ip_patterns))
+# ini = ( numpy.zeros((32, 1, 2, 16)), numpy.zeros((32, 64)), numpy.zeros((32, 3, 2, 16)), numpy.zeros((32, 64)), numpy.zeros((32, 2, 2, 16)))
+# t_array = multi_track.sync_play_multitrack(mo[0], mo[1], mo[2], ini=ini, predict_instances=400)
+# print(t_array, t_array.shape, "--t_array")
+
+# ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= ['piano', 'guitar','choir aahs'], drm = 2)
+# # print(ns_)
+# ct, st = 0, -1
+# for n in ns_.notes:
+#     if st != n.instrument:
+#         st = n.instrument
+#         ct +=1
+
+# print("st, ct", st, ct)
+# m_path = "F:\\rushikesh\\project\\polymuse-future\\midis\\multi\\" + "sync_pattern_multitrack_v2.mid"
+
+# dataset.ns_to_midi(ns_, m_path)
+
+# p_score = evaluation.polyphony_score(t_array)
+
+# print(p_score, p_score.shape, "--p score")
+
+# x = numpy.arange(p_score.shape[0])
+
+
+# plt.plot(x, p_score)
+
+# plt.show()
+
+# print("Average Polyphony Score : ", sum(p_score) / x.shape[0])
+
+"""
+Evalution Output: 
+Polyphonic Index : 0 - 1
+Tonal Span : > 1, max means better
+Scale Consistency : 0 - 1
+"""
+m_path = "F:\\rushikesh\\project\\polymuse-future\\midis\\multi\\" + "sync_pattern_multitrack_v2.mid"
+# ns = dataset.to_array(f)
+ns = dataset.to_note_sequence(m_path)
+# # print(ns)
+# ins = dataset.get_instrument(ns, 0)
+ar = dataset.ns_to_tarray(ns, resolution=64)
+pi = evaluation.polyphonic_index(ar, 4 , avg= False)
+sc = evaluation.scale_consistency(ar)
+td = evaluation.tonal_span_local(ar)
+
+print("Polyhonic Index : ", pi, pi.shape)
+
+print("Scale Consitency : ", sc, sc.shape)
+
+print("Tonal Distance : ", td, td.shape)
+
+evaluation.view_2D(sc, xname=constant.scale_names['major'].extend(constant.scale_names['minor']))
+
+evaluation.view_2D(td)
+
+evaluation.view_1D(pi)
+
+"""
+drum model
+"""
+
+# ip_memory = 32
+
+# tm = dataset.ns_tarray_to_time(ar[0:1])
+# print("tm : ", tm.shape)
+
+# tm[tm > 31] = 31
+
+# # print(tm, " --tm ")
+# tm = dutils.trim_axis2(tm)
+# tm = enc_deco.tm_to_enc_tm(tm)
+# print('tm : ', tm.shape)
+# x, y = dataset.prepare_time_data(tm, enc_shape = (64, ), ip_memory= 32)
+# print('x, y : ', x.shape, y.shape)
+# x , y = x[0], y[0]
+# # print(x, '--x time')
+# print('x, y : ', x.shape, y.shape)
+
+
+# # li  = dataset.merge_tarray(ar[:1], ar1[:1])
+
+# DEPTH = 2
+# DEPZERO = [0 for _ in range(DEPTH)]
+
+# # print(li, "------ li")
+# print(ar.shape, "--ar1")
+# # sroll = dataset.ns_tarray_to_sFlat(li[:1], DEPTH)
+# sroll = dataset.ns_tarray_to_sFlat(ar, DEPTH)
+# # sroll = dataset.ns_tarray_to_sFlat(ar1[:1], DEPTH)
+# # sroll = d2.sFlat_to_fFlat(sroll)
+
+# print('sroll : ', sroll.shape)
+# shape_info = sroll.shape
+# # cp_t_arr = cp_t_arr[:, :, : tm + 1]
+# # sroll = sroll[~numpy.all(sroll == DEPZERO, axis=2)]
+# print("sroll : ", sroll.shape, "--sroll")
+ 
+# # sroll = dataset.add_lead_in_sFlat(sroll, lead)
+
+# # print("sroll : ", sroll.shape, "--sroll")
+
+
+# sroll = numpy.reshape(sroll, sroll.shape) #For single track
+# enc = enc_deco.sFlat_to_octave(sroll)
+# print('enc : ', enc.shape)
+# x_nt, y_nt = dataset.prepare_sFlat_data(enc, enc_shape=(2, 16), ip_memory=32, depth = DEPTH)
+# print('x_nt, y_nt : ', x_nt.shape, y_nt.shape)
+# x_nt, y_nt = x_nt[0, : , :, :2], y_nt[0, :, :2]
+# print('x_nt, y_nt : ', x_nt.shape, y_nt.shape)
+
+# # print("x, y : ", x.shape, y.shape)
+
+# batch_size = 32
+# dropout = 0.3
+# cell_count = 512
+# epochs = 100
+
+# model_name = 'oct_drum_adam_track_s2_v9_'
+# #2_s_1_ gsF_512_m_oct_desp_v1___b_64_e_200_d_0.3
+
+
+# # m_note = 'F:\\rushikesh\\project\\polymuse-future\\h5_models\\gsF_512_m_oct_desp_v1___b_64_e_200_d_0.3.h5'
+# # m_time = 'F:\\rushikesh\\project\\polymuse-future\\h5_models\\gTsF_512_m_oct_desp_v1___b_64_e_200_d_0.3.h5'
+# # model = 'F:\\rushikesh\\project\\polymuse-future\polymuse\\h5_models\\gTsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+
+# m_note = rnn.build_sFlat_model(x_nt, y_nt, model_name, cell_count = cell_count, epochs = epochs, batch_size = batch_size, dropout = dropout)
+# m_time = rnn.build_time_sFlat_model(x, y, model_name, cell_count = cell_count, epochs = epochs, batch_size = batch_size, dropout = dropout)
+
+# ft = 'F:\\rushikesh\\project\\polymuse-future\\hist\\gTsF_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+# fn = 'F:\\rushikesh\\project\\polymuse-future\\hist\\g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+    
+# drawer.draw_json_loss_acc(fn, ft)
+
+# m_note = 'F:\\rushikesh\\project\\polymuse-future\\h5_models\\gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+# m_time ='F:\\rushikesh\\project\\polymuse-future\\h5_models\\gTsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+
+
+# # m_note = rnn.load(m_note)
+# # m_time = rnn.load(m_time)
+
+
+# ip_nt = numpy.zeros(x_nt[34].shape)
+# ip = numpy.zeros(x[34].shape)
+
+# print('ip_nt, ip : ', ip_nt.shape, ip.shape)
+
+# print('x, y : ', x.shape, y.shape)
+# print('x_nt, y_nt : ', x_nt.shape, y_nt.shape)
+
+# note, time = rnn_player.rsingle_note_time_play(m_note, m_time, ip_nt, ip, y_nt, y, ip_memory, 350)
+
+# print("note, time : ", note.shape, time.shape)
+
+# note, time = enc_deco.octave_to_sFlat(note), enc_deco.enc_tm_to_tm(time)
+
+# print("ENC :: note, time : ", note.shape, time.shape)
+
+
+# t_array = dataset.snote_time_to_tarray(note, time)
+# print("t_array : ", t_array)
+# ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= ['choir aahs'])
+
+# m_path = 'F:\\rushikesh\\project\\polymuse-future\\midis\\' + model_name + " _NT1_" + "gsF_512_m_oactave_v2_s_1___b_128_e_200_d_0.3__" + "gTsF_512_m_oactave_tm_v1___b_64_e_200_d_0.3.mid"
+
+# dataset.ns_to_midi(ns_, m_path)
+
+
+"""
+Hirachichal Model 
+"""
+
+# ar1, ar2 = d2.sync_tarray(ar[:1], ar[1:2])
+# print(ar1, ar2)
+
+
+
+
+# ip_memory = 32
+
+
+
+# tm = dataset.ns_tarray_to_time(ar1)
+# print("tm : ", tm.shape)
+# tm[tm > 31] = 31
+
+# tm = dutils.trim_axis2(tm)
+# tm = enc_deco.tm_to_enc_tm(tm)
+# print('tm : ', tm.shape)
+# x_t, y_t = dataset.prepare_time_data(tm, enc_shape = (64, ), ip_memory= 32)
+# print('x, y : ', x_t.shape, y_t.shape)
+# x_t , y_t = x_t[0], y_t[0]
+# # print(x, '--x time')
+# print('x, y : ', x_t.shape, y_t.shape)
+
+
+# DEPTH = 1
+
+# sroll_note = dataset.ns_tarray_to_sFlat(ar1, DEPTH)
+
+# print("sroll_note : ", sroll_note.shape, " --- sroll_note")
+
+# enc = enc_deco.sFlat_to_octave(sroll_note)
+# print('enc : ', enc.shape)
+# x_nt, y_nt = dataset.prepare_sFlat_data(enc, enc_shape=(2, 16), ip_memory=32, depth = DEPTH)
+
+# print('x_nt, y_nt : ', x_nt.shape, y_nt.shape)
+# x_nt, y_nt = x_nt[0, : , :, :1], y_nt[0, :, :1]
+# print('x_nt, y_nt : ', x_nt.shape, y_nt.shape)
+
+# print("\n")
+
+# """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+
+# DEPTH = 2
+# sroll_drum = dataset.ns_tarray_to_sFlat(ar2, DEPTH)
+
+# print("sroll_drum: ", sroll_drum.shape, " --- sroll_drum")
+
+# enc = enc_deco.sFlat_to_octave(sroll_drum)
+# print('enc : ', enc.shape)
+# x_dr, y_dr = dataset.prepare_sFlat_data(enc, enc_shape=(2, 16), ip_memory=32, depth = DEPTH)
+# x = x_dr
+# print('x_dr, y_dr : ', x_dr.shape, y_dr.shape)
+# x_dr, y_dr = x_dr[0, : , :, :2], y_dr[0, :, :2]
+# print('x_dr, y_dr : ', x_dr.shape, y_dr.shape)
+
+# note = "F:\\rushikesh\\project\\polymuse-future\\h5_models\\lead\\gsF_512_m_oct_dataset_v1___b_64_e_200_d_0.3.h5"
+
+# drum = "F:\\rushikesh\\project\\polymuse-future\\h5_models\\drum\\gsF_512_m_oct_drum_adam_track_s2_v9___b_32_e_100_d_0.3.h5"
+
+# # note = rnn.load_model(note)
+# # drum = rnn.load_model(drum)
+# lr = 0.0015
+# model_name = "dense_drum_note_adam"
+
+# batch_size = 32
+
+# dense_count = 96
+# epochs = 300
+
+# # drnm_1, drnm_2 = rnn.drum_note_h_dense(note, drum, x_nt, y_nt, x_dr, y_dr, model_name=model_name, dense_count = dense_count, epochs=epochs, lr = lr)
+
+# fn1 = 'F:\\rushikesh\\project\\polymuse-future\\hist\\dense3\\gDnDF_1_h_' + str(dense_count)+ "_lr_" +  str(lr)  + '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + ".json"
+# fn2 = 'F:\\rushikesh\\project\\polymuse-future\\hist\\dense3\\gDnDF_2_h_' + str(dense_count)+ "_lr_" +  str(lr)  + '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + ".json"
+
+# # drawer.draw_json_loss_acc(fn1, fn2)
+
+# ini_ip, ini_t, ini_drm_ip, ini_drm_t = numpy.zeros(x_nt[0].shape), numpy.zeros(x_t[0].shape), numpy.zeros(x[0, 0].shape), numpy.zeros(x[0].shape)
+
+# # print(ini_ip.shape, ini_t.shape, ini_drm_ip.shape, ini_drm_t.shape, "-- ini_ip, ini_t, ini_drm_ip, ini_drm_t")
+
+# mod = rnn.load_piano_drum_dense_models()
+
+# # print(mod)
+
+# mn, mt, md =  rnn_player.rnn_dense_player(mod, (ini_ip, ini_t, ini_drm_ip, ini_drm_t), ip_memory= 32, predict_instances= 200)
+
+# print(mn, mt, md, "-- mn, mt, md")
+
+# print(mn.shape, mt.shape, md.shape, "-- mn.shape, mt.shape, md.shape")
+
+# tarr = multi_track.dual_pianodrum_rollsto_tarray(mn, mt, md)
+
+# ns_r = dataset.tarray_to_ns(tarr, instruments=['piano', 'guitar'], drm=1)
+
+# f_mid = 'F:\\rushikesh\\project\\polymuse-future\\midis\\' + model_name + '_NT_dual_trk.mid'
+
+# mid = dataset.ns_to_midi(ns_r, f_mid)
+
+
+"""
+BUilder Testing
+"""
+# # f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Drummer_Piano.mid'
+# # f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Fur_Elise_by_Ludwig_Van_Beethoven.mid'
+# f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\desp.mid'
+
+
+
+# shapes = ((32 ,32, 1, 2, 16), (32, 32, 64))
+# # mnote, mtime = 'F:\\rushikesh\\project\\polymuse-future\\h5_models\\piano\\stateful\\gsF_512_m_note__b_32_e_40_d_0.3.h5', 'F:\\rushikesh\\project\\polymuse-future\\h5_models\\piano\\stateful\\gTsF_512_m_note__b_32_e_40_d_0.3.h5'
+# m_note, m_time, shapes, inp = builder.build_piano_stateful_model(f, epochs=40)
+# # m_note, m_time = rnn.load(mnote), rnn.load(mtime)
+# player.play_piano_stateful_model_single_track(m_note, m_time, shapes, midi_path='c:/Users/rushi/OneDrive/Desktop/for_fun_midi2.mid', inp = inp, instruments = ['guitar'] )
+
