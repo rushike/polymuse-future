@@ -46,6 +46,15 @@ def scale_consistency(tarr):
     sc /= tarr.shape[1]
     return sc   
 
+def scale_name(sc):
+    scl_name = []
+    for t in range(sc.shape[0]):
+        scl = numpy.where(sc[t] == max(sc[t]))
+        scl = scl[0] % 12
+        sc_n =  constant.scale_names['major'][scl] + ' : ' + sc[t]
+        scl_name.append(sc_n)
+    return ', '.join(scl_name)
+
 def form_scale_struct():
     scl_struct = numpy.zeros((24, 88))
     for i in range(0, 12):
@@ -76,7 +85,7 @@ def tonal_span_local(tarr, group = 32):
 
 
 
-def view_2D(arr2D, xaxis = None, xname= 'X', yname= 'Tonal Span'):
+def view_2D(arr2D, xaxis = None, xname= 'X', yname= 'Tonal Span', title = 'Track'):
     ts = numpy.ceil(numpy.sqrt(arr2D.shape[0]))
 
     fig = plt.figure()
@@ -84,19 +93,19 @@ def view_2D(arr2D, xaxis = None, xname= 'X', yname= 'Tonal Span'):
     xaxis = numpy.arange(arr2D.shape[1])
     for i in range(arr2D.shape[0]):
         ax = fig.add_subplot(ts, ts, i + 1)
-        ax.plot(xaxis, arr2D[i], label = yname + ' vs Track ' + str(i))
-        ax.title.set_text("Track " + str(i))
+        ax.plot(xaxis, arr2D[i], label = yname + ' vs ' + xname + ' ' + str(i))
+        ax.title.set_text(title + str(i))
         ax.legend()
     plt.show()
 
 
-def view_1D(arr1D, xname= 'X', yname= 'Tonal Span'):
+def view_1D(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span'):
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
-    x = numpy.arange(arr1D.shape[1])
+    x = numpy.arange(arr1D.shape[0])
     ax = fig.add_subplot(1, 1, 1)
-    ax.plot(x, arr1D, label = yname + ' vs Track ' + str(i))
-    ax.title.set_text("Track " + str(i))
+    ax.plot(x, arr1D, label = yname + ' vs Time ')
+    ax.title.set_text(title)
     ax.legend()
     plt.show()
 

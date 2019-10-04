@@ -145,46 +145,49 @@ Polyphonic Index : 0 - 1
 Tonal Span : > 1, max means better
 Scale Consistency : 0 - 1
 """
-m_path = "F:\\rushikesh\\project\\polymuse-future\\midis\\multi\\" + "sync_pattern_multitrack_v2.mid"
-# ns = dataset.to_array(f)
-ns = dataset.to_note_sequence(m_path)
-# # print(ns)
-# ins = dataset.get_instrument(ns, 0)
-ar = dataset.ns_to_tarray(ns, resolution=64)
-pi = evaluation.polyphonic_index(ar, 4 , avg= False)
-sc = evaluation.scale_consistency(ar)
-td = evaluation.tonal_span_local(ar)
+# m_path = "F:\\rushikesh\\project\\polymuse-future\\midis\\multi\\" + "sync_pattern_multitrack_v2.mid"
+# # ns = dataset.to_array(f)
+# ns = dataset.to_note_sequence(m_path)
+# # # print(ns)
+# # ins = dataset.get_instrument(ns, 0)
+# ar = dataset.ns_to_tarray(ns, resolution=64)
+# pi = evaluation.polyphonic_index(ar, 4 , avg= False)
+# sc = evaluation.scale_consistency(ar)
+# td = evaluation.tonal_span_local(ar)
 
-print("Polyhonic Index : ", pi, pi.shape)
+# print("Polyhonic Index : ", pi, pi.shape)
+# print("Polyphonic avg score", pi.mean())
+# print("=========================================================================================================\n")
+# print("Scale Consitency : ", sc, sc.shape)
+# print('Tone in scales : ', evaluation.scale_name(sc))
+# print("=========================================================================================================\n")
+# print("Tonal Distance : ", td, td.shape)
+# print("Average tonal distance : ", td.mean(axis = 1))
 
-print("Scale Consitency : ", sc, sc.shape)
-
-print("Tonal Distance : ", td, td.shape)
-
-evaluation.view_2D(sc, xname=constant.scale_names['major'].extend(constant.scale_names['minor']))
-
-evaluation.view_2D(td)
-
-evaluation.view_1D(pi)
+# evaluation.view_2D(sc, xaxis=constant.scale_names['major'].extend(constant.scale_names['minor']), yname='Scale Consitency')
+# print("=========================================================================================================\n")
+# evaluation.view_2D(td, xname='Tonal Distance')
+# print("=========================================================================================================\n")
+# evaluation.view_1D(pi, title="Polyphony Score")
 
 """
 drum model
 """
 
-# ip_memory = 32
+# ip_memory = 32 #input memory : prev notes
 
-# tm = dataset.ns_tarray_to_time(ar[0:1])
+# tm = dataset.ns_tarray_to_time(ar[0:1]) #(tracks , time_instance)
 # print("tm : ", tm.shape)
 
 # tm[tm > 31] = 31
 
 # # print(tm, " --tm ")
 # tm = dutils.trim_axis2(tm)
-# tm = enc_deco.tm_to_enc_tm(tm)
+# tm = enc_deco.tm_to_enc_tm(tm) #(tracks, time_instance, 64)
 # print('tm : ', tm.shape)
-# x, y = dataset.prepare_time_data(tm, enc_shape = (64, ), ip_memory= 32)
+# x, y = dataset.prepare_time_data(tm, enc_shape = (64, ), ip_memory= 32) #(#tracks ,time_instaances, 32, 64)
 # print('x, y : ', x.shape, y.shape)
-# x , y = x[0], y[0]
+# x , y = x[0], y[0] #Train one track at time
 # # print(x, '--x time')
 # print('x, y : ', x.shape, y.shape)
 
@@ -197,7 +200,7 @@ drum model
 # # print(li, "------ li")
 # print(ar.shape, "--ar1")
 # # sroll = dataset.ns_tarray_to_sFlat(li[:1], DEPTH)
-# sroll = dataset.ns_tarray_to_sFlat(ar, DEPTH)
+# sroll = dataset.ns_tarray_to_sFlat(ar, DEPTH) #(track, note_instaces, depth)
 # # sroll = dataset.ns_tarray_to_sFlat(ar1[:1], DEPTH)
 # # sroll = d2.sFlat_to_fFlat(sroll)
 
@@ -213,9 +216,9 @@ drum model
 
 
 # sroll = numpy.reshape(sroll, sroll.shape) #For single track
-# enc = enc_deco.sFlat_to_octave(sroll)
+# enc = enc_deco.sFlat_to_octave(sroll) #(track, note_instances, depth, 2, 16)
 # print('enc : ', enc.shape)
-# x_nt, y_nt = dataset.prepare_sFlat_data(enc, enc_shape=(2, 16), ip_memory=32, depth = DEPTH)
+# x_nt, y_nt = dataset.prepare_sFlat_data(enc, enc_shape=(2, 16), ip_memory=32, depth = DEPTH) #(track, note_instances, 32, depth, 2, 16)
 # print('x_nt, y_nt : ', x_nt.shape, y_nt.shape)
 # x_nt, y_nt = x_nt[0, : , :, :2], y_nt[0, :, :2]
 # print('x_nt, y_nt : ', x_nt.shape, y_nt.shape)
