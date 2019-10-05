@@ -51,7 +51,8 @@ def scale_name(sc):
     for t in range(sc.shape[0]):
         scl = numpy.where(sc[t] == max(sc[t]))
         scl = scl[0] % 12
-        sc_n =  constant.scale_names['major'][scl] + ' : ' + sc[t]
+        print(scl, "--scl")
+        sc_n =  constant.scale_names['major'][int(scl[0])] + ' : ' + str(sc[t][int(scl[0])])
         scl_name.append(sc_n)
     return ', '.join(scl_name)
 

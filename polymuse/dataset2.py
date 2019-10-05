@@ -218,33 +218,78 @@ def ns_tarray_to_sFlatroll(tarray, quanta = 1, depth = 3):
     return sflatroll
 
 def sFlatroll_to_ns_tarray(roll):
-    tarr = []
-    depth = roll.shape[2]
-    for t, tr in enumerate(roll):
-        tarr.append([])
+    lis = []
+    depth =  roll.shape[2]
+    prevcount = numpy.zeros(depth)
+    prev = numpy.zeros(depth)
+    i = 0
+    def check_insertion(row):
+        if lis != []:
+            prevrow = lis[-1]
+            if prevrow[0] == row[0] and row[3] > prevrow[3]:
+                lis.pop(-1)
+                lis.append(row)
+                lis.append(prevrow)
+            else : lis.append(row)
+        else : lis.append(row)
+    
+    def to_insert(j):
+        elecount = prevcount[j] // prev[j] #int division 
+        elestart = i - elecount
+        row = [elestart, prev[j], 80, elecount]
+        check_insertion(row) 
+        
+
+
+    for ti in range(roll.shape[0]):
+        for i in range(roll.shape[1]):
+            ele = 0
+            for j in range(depth):
+                ele = roll[ti, i, j] #the element
+                if ele != prev[j] and prev[j] != 0:
+                    to_insert(j)
+
+                    prev[j] = ele
+                    prevcount[j] = ele
+                else:
+                    if prev[j] == 0: prev[j] = ele
+                    prevcount[j] += ele
+        
         for j in range(depth):
-            cnt = 0 
-            for k, tm in enumerate(tr):
-                if tarr[t] == []:
-                    tarr[t].append([cnt, tm[j], 80, 1])
-                    cnt += 1
-                if tm[j] == 0:
-                    cnt += 1 
-                    continue
-                if tarr[t][-1][1] == tm[j]: #prev note same
-                    tarr[t][-1][0] += 1
-                    tarr[t][-1][3] += 1
-                    cnt += 1
-                else :
-                    tarr[t].append([cnt, tm[j], 80, 1])
-                    cnt += 1
-    le = (len(arr) for arr in tarr)
-    print(le)
-    size  = max(len(arr) for arr in tarr)
-    tarr1 = numpy.zeros((roll.shape[0], size, 4), dtype = 'int32')
-    for t in range(roll.shape[0]):
-        tarr1[t, :len(tarr[t])] = tarr[t]
-    print(tarr1, tarr1.shape, " -- tarr")
+            if prev[j] == 0: continue
+            to_insert(j)
+        
+        print(lis)
+
+
+# def sFlatroll_to_ns_tarray(roll):
+#     tarr = []
+#     depth = roll.shape[2]
+#     for t, tr in enumerate(roll):
+#         tarr.append([])
+#         for j in range(depth):
+#             cnt = 0 
+#             for k, tm in enumerate(tr):
+#                 if tarr[t] == []:
+#                     tarr[t].append([cnt, tm[j], 80, 1])
+#                     cnt += 1
+#                 if tm[j] == 0:
+#                     cnt += 1 
+#                     continue
+#                 if tarr[t][-1][1] == tm[j]: #prev note same
+#                     tarr[t][-1][0] += 1
+#                     tarr[t][-1][3] += 1
+#                     cnt += 1
+#                 else :
+#                     tarr[t].append([cnt, tm[j], 80, 1])
+#                     cnt += 1
+#     le = (len(arr) for arr in tarr)
+#     print(le)
+#     size  = max(len(arr) for arr in tarr)
+#     tarr1 = numpy.zeros((roll.shape[0], size, 4), dtype = 'int32')
+#     for t in range(roll.shape[0]):
+#         tarr1[t, :len(tarr[t])] = tarr[t]
+#     print(tarr1, tarr1.shape, " -- tarr")
                 
                 
 
