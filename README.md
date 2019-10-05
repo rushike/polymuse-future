@@ -1,3 +1,5 @@
+
+
 # polymuse-future
 *Making the music real* 
 In development phase, once completed repo will change name to polymuse
@@ -11,11 +13,10 @@ Need to discuss .......
 
 
 **Table of Contents**
-
-[TOCM]
-
-[TOC]
-
+* Overview
+* Components
+* Links
+* Installing ..
 
 ##Overview
 This is BE project aiming to generate the musical patterns from the midi file that are the audibes to  ***ears***
