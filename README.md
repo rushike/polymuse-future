@@ -18,15 +18,15 @@ Need to discuss .......
 * Links
 * Installing ..
 
-##Overview
+## Overview
 This is BE project aiming to generate the musical patterns from the midi file that are the audibes to  ***ears***
 
-###Components
+### Components
 Will be added soon
 
-###Links
+### Links
 This to ... 
-###Installing ...
+### Installing ...
 This is pre complete installation, package may not run as expected
 `$ pip install polymuse`
 > OR
