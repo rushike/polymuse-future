@@ -1,6 +1,11 @@
 import numpy, copy
 
 
+"""
+All utility functionalites majorly related to dataset in and out , i.e. preprocessing step
+
+"""
+
 def to_numpy_array_from_3D_list(listn, shape = [3, 1000, 5], depth = 1):
     # if depth == 0:
     # le = len(listn)

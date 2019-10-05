@@ -13,9 +13,34 @@ from numpy import random
 random.seed(131)
 tf.set_random_seed(131)
 
+HOME = os.getcwd()
 
 """
-Model bui;dong using keras library
+Model building using keras library
+This includes code for building the various RNN base models for our polymuse 
+The models are store in current directory, in hierarchy
+--h5_models/
+    --piano/
+        --stateful/
+        --stateless/
+    --lead/
+        --stateful/
+        --stateless/
+    --drum/
+        --stateful/
+        --stateless/
+    --chorus/
+        --stateful/
+        --stateless/
+    --dense3/
+        --stateful/
+        --stateless/
+
+The model includes the core functionality function as 
+load --> to load h5 models from .h5 files
+octave_loss --> to calculate the octave loss, not tested  
+predict, predict_b, predict_dense --> predict the next note, time instance based on models and the current input
+
 """
 
 def load(model): #loads model from .h5 file
@@ -92,8 +117,8 @@ def predict_dense(model, x):
     y = y.reshape(sh)
     return y
 def load_piano_drum_dense_models():
-    drm_dense = 'F:\\rushikesh\\project\\polymuse-future\\h5_models\\'
-    home = 'F:\\rushikesh\\project\\polymuse-future\\h5_models\\'
+    drm_dense = HOME + '/h5_models/'
+    home = HOME + '/h5_models/'
     dirs= ['lead', 'drum', 'dense3\\dense']
     op_models = []
     
@@ -172,7 +197,7 @@ def build_sFlat_model(x, y, model_name, IP = None, OP = None, cell_count = 256, 
     # model.compile(loss=octave_loss, optimizer='rmsprop', metrics=['acc', octave_loss])
     # batch_size = 30 if not batch_size else batch_size
     # epochs = 500 if not epochs else epochs
-    file_path = './h5_models/piano/stateless/gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+    file_path = HOME + '/h5_models/piano/stateless/gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
     
 
     checkpoint = ModelCheckpoint(
@@ -189,7 +214,7 @@ def build_sFlat_model(x, y, model_name, IP = None, OP = None, cell_count = 256, 
     
     model.save(file_path)
    
-    f = './hist/piano/stateless/g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+    f = HOME + '/hist/piano/stateless/g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
     
     with open(f, 'w') as json_file:
         json.dump(history.history, json_file)
@@ -247,7 +272,7 @@ def build_sFlat_stateful_model(x, y, model_name, IP = None, OP = None, cell_coun
     # model.compile(loss=octave_loss, optimizer='rmsprop', metrics=['acc', octave_loss])
     # batch_size = 30 if not batch_size else batch_size
     # epochs = 500 if not epochs else epochs
-    file_path = './h5_models/piano/stateful/gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+    file_path = HOME + '/h5_models/piano/stateful/gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
     
 
     checkpoint = ModelCheckpoint(
@@ -264,7 +289,7 @@ def build_sFlat_stateful_model(x, y, model_name, IP = None, OP = None, cell_coun
     
     model.save(file_path)
    
-    f = './hist/piano/stateful/g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+    f = HOME + '/hist/piano/stateful/g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
     
     with open(f, 'w') as json_file:
         json.dump(history.history, json_file)
@@ -311,7 +336,7 @@ def build_time_sFlat_stateful_model(x, y, model_name, IP = None, OP = None, cell
     # batch_size = 30 if not batch_size else batch_size
     # epochs = 500 if not epochs else epochs
  
-    file_path = './h5_models/piano/stateful/gTsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+    file_path = HOME + '/h5_models/piano/stateful/gTsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
     
     es = EarlyStopping(monitor = 'val_loss', mode='min', verbose=1, patience=50)
 
@@ -329,7 +354,7 @@ def build_time_sFlat_stateful_model(x, y, model_name, IP = None, OP = None, cell
     
     model.save(file_path)
 
-    f = './hist/piano/stateful/gTsF_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+    f = HOME + '/hist/piano/stateful/gTsF_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
     with open(f, 'w') as json_file:
         json.dump(history.history, json_file)
     1 == 0
@@ -384,7 +409,7 @@ def build_time_sFlat_model(x, y, model_name, IP = None, OP = None, cell_count = 
     # batch_size = 30 if not batch_size else batch_size
     # epochs = 500 if not epochs else epochs
  
-    file_path = './h5_models/piano/stateless/gTsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+    file_path = HOME + '/h5_models/piano/stateless/gTsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
     
     es = EarlyStopping(monitor = 'val_loss', mode='min', verbose=1, patience=50)
 
@@ -402,7 +427,7 @@ def build_time_sFlat_model(x, y, model_name, IP = None, OP = None, cell_count = 
     
     model.save(file_path)
 
-    f = './hist/piano/stateless/gTsF_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+    f = HOME + '/hist/piano/stateless/gTsF_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
     with open(f, 'w') as json_file:
         json.dump(history.history, json_file)
     1 == 0
@@ -478,7 +503,7 @@ def drum_note_dense(x, y, model_name,  IP = None, OP = None, dense_count = 96, e
     # batch_size = 30 if not batch_size else batch_size
     # epochs = 500 if not epochs else epochs
  
-    file_path = './h5_models/dense3/gDnDF_' + str(ser)+ "_" + str(dense_count) + "_lr_" +  str(lr) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + ".h5"
+    file_path = HOME + '/h5_models/dense3/gDnDF_' + str(ser)+ "_" + str(dense_count) + "_lr_" +  str(lr) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + ".h5"
     
     es = EarlyStopping(monitor = 'val_loss', mode='min', verbose=1, patience=50)
 
@@ -496,7 +521,7 @@ def drum_note_dense(x, y, model_name,  IP = None, OP = None, dense_count = 96, e
 
     # x, y = numpy.reshape(x, IP), numpy.reshape(y, OP)
 
-    f = './hist/dense3/gDnDF_h_' + str(dense_count) + "_lr_" +  str(lr) + '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + ".json"
+    f = HOME + '/hist/dense3/gDnDF_h_' + str(dense_count) + "_lr_" +  str(lr) + '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + ".json"
     with open(f, 'w') as json_file:
         json.dump(history.history, json_file)
     1 == 0
@@ -542,7 +567,7 @@ def drum_time_h(time, drum, x_t, y_t, x_d, y_d, model_name, IP = None, OP = None
     # batch_size = 30 if not batch_size else batch_size
     # epochs = 500 if not epochs else epochs
  
-    file_path = './h5_models/gTtDF_' +  str(dense_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + ".h5"
+    file_path = HOME + '/h5_models/gTtDF_' +  str(dense_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + ".h5"
     
     es = EarlyStopping(monitor = 'val_loss', mode='min', verbose=1, patience=50)
 
@@ -558,7 +583,7 @@ def drum_time_h(time, drum, x_t, y_t, x_d, y_d, model_name, IP = None, OP = None
     
     model.save(file_path)
 
-    f = './hist/gTtDF_h_' + str(dense_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + ".json"
+    f = HOME + '/hist/gTtDF_h_' + str(dense_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + ".json"
     with open(f, 'w') as json_file:
         json.dump(history.history, json_file)
     1 == 0

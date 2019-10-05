@@ -1,4 +1,7 @@
+"""
+This file is intended to content the basic input pattern need to feed to neural rnn models
 
+"""
 
 ip_patterns = [
     [

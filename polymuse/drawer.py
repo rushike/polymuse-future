@@ -1,6 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy, json
 
+
+"""
+This files has some function to draw the traing results. Like training losses, accuraces
+"""
+
+
 def draw_json_loss_acc(j_fn, j_ft): #draw note and time
     with open(j_fn, 'r') as j_file:
         j_strn = j_file

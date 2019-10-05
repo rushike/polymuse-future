@@ -2,6 +2,13 @@
 from polymuse import rnn, dutils
 
 import numpy
+"""
+rnn_player -- capable of playing/generating the music output as octave/time encoded representation
+
+These also includes two most important functions :
+    * shift:
+    * add_flatroll: 
+"""
 
 
 

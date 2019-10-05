@@ -1,5 +1,11 @@
 import numpy
 
+"""
+Constants : This files includes the basic constant used with polymuse from instrument codes, to inverse of it, to scale patterns etc ... 
+
+"""
+
+
 def instrument_program_code(names):
     codes = numpy.zeros(len(names), dtype='int32')
     for i, nm in enumerate(names):
@@ -9,24 +15,6 @@ def instrument_program_code(names):
 
 rev_inst_codes = {0: 'Acoustic Grand Piano', 1: 'Bright Acoustic Piano', 2: 'Electric Grand Piano', 3: 'Honky-tonk Piano', 4: 'Electric Piano 1', 5: 'Electric Piano 2', 6: 'Harpsichord', 7: 'Clavi', 8: 'Celesta', 9: 'Glockenspiel', 10: 'Music Box', 11: 'Vibraphone', 12: 'Marimba', 13: 'Xylophone', 14: 'Tubular Bells', 15: 'Dulcimer', 16: 'Drawbar Organ', 17: 'Percussive Organ', 18: 'Rock Organ', 19: 'Church Organ', 20: 'Reed Organ', 21: 'Accordion', 22: 'Harmonica', 23: 'Tango Accordion', 24: 'Acoustic Guitar (nylon)', 25: 'Acoustic Guitar (steel)', 26: 'Electric Guitar (jazz)', 27: 'Electric Guitar (clean)', 28: 'Electric Guitar (muted)', 29: 'Overdriven Guitar', 30: 'Distortion Guitar', 31: 'Guitar harmonics', 32: 'Acoustic Bass', 33: 'Electric Bass (finger)', 34: 'Electric Bass (pick)', 35: 'Fretless Bass', 36: 'Slap Bass 1', 37: 'Slap Bass 2', 38: 'Synth Bass 1', 39: 'Synth Bass 2', 40: 'Violin', 41: 'Viola', 42: 'Cello', 43: 'Contrabass', 44: 'Tremolo Strings', 45: 'Pizzicato Strings', 46: 'Orchestral Harp', 47: 'Timpani', 48: 'String Ensemble 1', 49: 'String Ensemble 2', 50: 'SynthStrings 1', 51: 'SynthStrings 2', 52: 'Choir Aahs', 53: 'Voice Oohs', 54: 'Synth Voice', 55: 'Orchestra Hit', 56: 'Trumpet', 57: 'Trombone', 58: 'Tuba', 59: 'Muted Trumpet', 60: 'French Horn', 61: 'Brass Section', 62: 'SynthBrass 1', 63: 'SynthBrass 2', 64: 'Soprano Sax', 65: 'Alto Sax', 66: 'Tenor Sax', 67: 'Baritone Sax', 68: 'Oboe', 69: 'English Horn', 70: 'Bassoon', 71: 'Clarinet', 72: 'Piccolo', 73: 'Flute', 74: 'Recorder', 75: 'Pan Flute', 76: 'Blown Bottle', 77: 'Shakuhachi', 78: 'Whistle', 79: 'Ocarina', 80: 'Lead 1 (square)', 81: 'Lead 2 (sawtooth)', 82: 'Lead 3 (calliope)', 83: 'Lead 4 (chiff)', 84: 'Lead 5 (charang)', 85: 'Lead 6 (voice)', 86: 'Lead 7 (fifths)', 87: 'Lead 8 (bass + lead)', 88: 'Pad 1 (new age)', 89: 'Pad 2 (warm)', 90: 'Pad 3 (polysynth)', 91: 'Pad 4 (choir)', 92: 'Pad 5 (bowed)', 93: 'Pad 6 (metallic)', 94: 'Pad 7 (halo)', 95: 'Pad 8 (sweep)', 96: 'FX 1 (rain)', 97: 'FX 2 (soundtrack)', 98: 'FX 3 (crystal)', 99: 'FX 4 (atmosphere)', 100: 'FX 5 (brightness)', 101: 'FX 6 (goblins)', 102: 'FX 7 (echoes)', 103: 'FX 8 (sci-fi)', 104: 'Sitar', 105: 'Banjo', 106: 'Shamisen', 107: 'Koto', 108: 'Kalimba', 109: 'Bag pipe', 110: 'Fiddle', 111: 'Shanai', 112: 'Tinkle Bell', 113: 'Agogo', 114: 'Steel Drums', 115: 'Woodblock', 116: 'Taiko Drum', 117: 'Melodic Tom', 118: 'Synth Drum', 119: 'Reverse Cymbal', 120: 'Guitar Fret Noise', 121: 'Breath Noise', 122: 'Seashore', 123: 'Bird Tweet', 124: 'Telephone Ring', 125: 'Helicopter', 126: 'Applause', 127: 'Gunshot'}
 
-
-# inst_codes = {
-#             'Piano' : 0, 'Acoustic Grand Piano': 0, 'Bright Acoustic Piano': 1, 'Electric Grand Piano': 2, 'Honky-tonk Piano': 3, 'Electric Piano 1': 4, 'Electric Piano 2': 5, 'Harpsichord': 6, 'Clavi': 7, 'Celesta': 8, 
-#             'Glockenspiel': 9, 'Music Box': 10, 'Vibraphone': 11, 'Marimba': 12, 'Xylophone': 13, 'Tubular Bells': 14, 'Dulcimer': 15, 'Drawbar Organ': 16, 
-#             'Percussive Organ': 17, 'Rock Organ': 18, 'Church Organ': 19, 'Reed Organ': 20, 'Accordion': 21, 'Harmonica': 22, 'Tango Accordion': 23, 'Acoustic Guitar (nylon)': 24, 
-#             'Guitar' : 25, 'Acoustic Guitar' : 25, 'Acoustic Guitar (steel)': 25, 'Electric Guitar (jazz)': 26, 'Electric Guitar (clean)': 27, 'Electric Guitar (muted)': 28, 'Overdriven Guitar': 29, 'Distortion Guitar': 30, 'Guitar harmonics': 31, 'Acoustic Bass': 32, 
-#             'Electric Bass (finger)': 33, 'Electric Bass (pick)': 34, 'Fretless Bass': 35, 'Slap Bass 1': 36, 'Slap Bass 2': 37, 'Synth Bass 1': 38, 'Synth Bass 2': 39, 'Violin': 40, 
-#             'Viola': 41, 'Cello': 42, 'Contrabass': 43, 'Tremolo Strings': 44, 'Pizzicato Strings': 45, 'Orchestral Harp': 46, 'Timpani': 47, 'String Ensemble 1': 48, 
-#             'String Ensemble 2': 49, 'SynthStrings 1': 50, 'SynthStrings 2': 51, 'Choir Aahs': 52, 'Voice Oohs': 53, 'Synth Voice': 54, 'Orchestra Hit': 55, 'Trumpet': 56, 
-#             'Trombone': 57, 'Tuba': 58, 'Muted Trumpet': 59, 'French Horn': 60, 'Brass Section': 61, 'SynthBrass 1': 62, 'SynthBrass 2': 63, 'Soprano Sax': 64, 
-#             'Alto Sax': 65, 'Tenor Sax': 66, 'Baritone Sax': 67, 'Oboe': 68, 'English Horn': 69, 'Bassoon': 70, 'Clarinet': 71, 'Piccolo': 72,
-#             'Flute': 73, 'Recorder': 74, 'Pan Flute': 75, 'Blown Bottle': 76, 'Shakuhachi': 77, 'Whistle': 78, 'Ocarina': 79, 'Lead 1 (square)': 80,
-#             'Lead 2 (sawtooth)': 81, 'Lead 3 (calliope)': 82, 'Lead 4 (chiff)': 83, 'Lead 5 (charang)': 84, 'Lead 6 (voice)': 85, 'Lead 7 (fifths)': 86, 'Lead 8 (bass + lead)': 87, 'Pad 1 (new age)': 88, 
-#             'Pad 2 (warm)': 89, 'Pad 3 (polysynth)': 90, 'Pad 4 (choir)': 91, 'Pad 5 (bowed)': 92, 'Pad 6 (metallic)': 93, 'Pad 7 (halo)': 94, 'Pad 8 (sweep)': 95, 'FX 1 (rain)': 96,
-#             'FX 2 (soundtrack)': 97, 'FX 3 (crystal)': 98, 'FX 4 (atmosphere)': 99, 'FX 5 (brightness)': 100, 'FX 6 (goblins)': 101, 'FX 7 (echoes)': 102, 'FX 8 (sci-fi)': 103, 'Sitar': 104, 
-#             'Banjo': 105, 'Shamisen': 106, 'Koto': 107, 'Kalimba': 108, 'Bag pipe': 109, 'Fiddle': 110, 'Shanai': 111, 'Tinkle Bell': 112, 
-#             'Agogo': 113, 'Steel Drums': 114, 'Woodblock': 115, 'Taiko Drum': 116, 'Melodic Tom': 117, 'Synth Drum': 118, 'Reverse Cymbal': 119, 'Guitar Fret Noise': 120, 'Breath Noise': 121, 'Seashore': 122, 'Bird Tweet': 123, 'Telephone Ring': 124, 'Helicopter': 125, 'Applause': 126, 'Gunshot': 127
-#             }
 
 inst_codes = {
                 'piano' : 0, 'acoustic grand piano': 0, 'bright acoustic piano': 1, 'electric grand piano': 2, 'honky-tonk piano': 3, 'electric piano 1': 4, 'electric piano 2': 5, 'harpsichord': 6, 'clavi': 7, 'celesta': 8,

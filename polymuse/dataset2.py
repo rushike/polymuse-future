@@ -7,6 +7,20 @@ from polymuse import constant, dataset, enc_deco
 import numpy, copy, sys
 
 
+"""
+It includes the basic fuctionlity of input in and out, from midi to one of representation used in polymuse
+Hirarchy of  Representation : 
+    -- midi 
+    -- ns (Note Sequence) --> magenta representation
+    -- tarray : polymuse top level representaion
+    -- sFlat, time : encoded format (top level encoding)
+    -- octave, time : model encoded format
+
+It is second file includes same functionality as dataset, the only sole reason to make file is to avoid the uncessary long scroll while development
+In last it is  posssibly going to merge with dataset
+
+"""
+
 def tarray_to_sFlat_roll(t_arr, DEPTH = 3):
     roll = []
     lis = t_arr.tolist()

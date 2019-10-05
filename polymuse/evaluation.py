@@ -5,6 +5,16 @@ import matplotlib.pyplot as plt
 
 from polymuse import constant
 
+"""
+The file contains functionality to evaluate the output from the various models
+
+All functions take input as tarray the top level representation to music generated or inputed 
+
+All metrics disscussed are computer based, and the likely values can't garuntee the excellent outputed music
+"""
+
+
+
 def polyphony_score(tarr):
     score = numpy.zeros(3600)
     for t in tarr:

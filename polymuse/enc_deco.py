@@ -1,5 +1,14 @@
 import numpy
 
+"""
+It includes the functionality to encode and decode the input and output
+
+It uses different types of encoding from one-hot to multi-many-hot encoding 
+
+"""
+
+
+
 def sFlat_to_octave(sflat, depth = 16):
     """sFlat to octave representation
     converts each element to 2 * 16 matrix

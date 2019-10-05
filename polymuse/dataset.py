@@ -5,6 +5,17 @@ from magenta.music import midi_io
 from magenta.protobuf import music_pb2
 import numpy, copy, sys
 
+"""
+It includes the basic fuctionlity of input in and out, from midi to one of representation used in polymuse
+Hierarchy of  Representation : 
+    -- midi 
+    -- ns (Note Sequence) --> magenta representation
+    -- tarray : polymuse top level representaion
+    -- sFlat, time : encoded format (top level encoding)
+    -- octave, time : model encoded format
+
+"""
+
 def to_note_sequence(midi_file_path):
     return midi_io.midi_file_to_note_sequence(midi_file_path)
 

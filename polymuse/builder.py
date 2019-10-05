@@ -7,11 +7,15 @@ from polymuse import drawer
 
 import pyfiglet
 
+import os
+
 from matplotlib import pyplot as plt
 
 # from scipy.interpolate import make_interp_spline, BSpline
 import numpy
 big = pyfiglet.Figlet(font="slant")
+
+HOME = os.getcwd() 
 
 def build_piano_stateful_model(dataset_path, lr = 0.01, model_name = "note", cell_count = 512, batch_size = 32, dense_count = 96, epochs = 300, dropout = 0.3):
     ns = dataset.to_note_sequence(dataset_path)
@@ -101,8 +105,8 @@ def build_piano_model(dataset_path, lr = 0.01, model_name = "note", cell_count =
     m_note = rnn.build_sFlat_model(x_nt, y_nt, model_name, cell_count = cell_count, epochs = epochs, batch_size = batch_size, dropout = dropout)
     m_time = rnn.build_time_sFlat_model(x_t, y_t, model_name, cell_count = cell_count, epochs = epochs, batch_size = batch_size, dropout = dropout)
 
-    ft = 'F:\\rushikesh\\project\\polymuse-future\\hist\\piano\\stateless\\gTsF_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
-    fn = 'F:\\rushikesh\\project\\polymuse-future\\hist\\piano\\stateless\\g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+    ft = HOME + '/hist/piano/stateless/gTsF_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
+    fn = HOME + '/hist/piano/stateless/g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
         
     drawer.draw_json_loss_acc(fn, ft)
 
