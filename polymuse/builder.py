@@ -1,3 +1,11 @@
+"""
+This includes functionality of preprocing in bulding the models
+
+"""
+
+
+
+
 from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2
 from polymuse import multi_track
 
@@ -10,6 +18,9 @@ import pyfiglet
 import os
 
 from matplotlib import pyplot as plt
+
+
+
 
 # from scipy.interpolate import make_interp_spline, BSpline
 import numpy

@@ -30,6 +30,7 @@ This to ...
 This is pre complete installation, package may not run as expected
 
 `$ pip install polymuse`
+
 > OR
 
 `$ pip install polymuse-future`

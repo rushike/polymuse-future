@@ -9,7 +9,7 @@ import numpy, copy, sys
 
 """
 It includes the basic fuctionlity of input in and out, from midi to one of representation used in polymuse
-Hirarchy of  Representation : 
+Hierarchy of  Representation : 
     -- midi 
     -- ns (Note Sequence) --> magenta representation
     -- tarray : polymuse top level representaion
