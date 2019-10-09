@@ -65,3 +65,17 @@ scale_names = {
         'major' : ['C', 'C#', 'D ', 'D#', 'E ', 'F ', 'F#', 'G ', 'G#', 'A ', 'A#', 'B '],
         'minor' : ['Cm', 'C#m', 'Dm ', 'D#m', 'Em ', 'Fm ', 'F#m', 'Gm ', 'g#m', 'Am ', 'A#m', 'Bm '],       
     }
+
+lead_track = [0, 1, 2, 4, 6, 7, 8,  13,  15,  33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49,  70,  72]
+
+
+model_dict = {
+        'lead' : 'lead', 'piano' : 'lead', 'first' : 'lead',
+        'chorus' : 'chorus', 'second' : 'chorus',
+        'drum' : 'drum', 'third' : 'drum'
+    }
+
+depths_of_3tracks = {
+                    0 : 1, 1: 3, 2: 2, 
+                    'lead' : 1, 'chorus' : 3, 'drum': 2 
+                    }

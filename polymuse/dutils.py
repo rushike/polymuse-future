@@ -199,18 +199,47 @@ def note_to_midi(note): #Not implemented
 def dictn(ndlist):
     return {l[0] : l[1:]  for l in ndlist}
 
-def get_all_midis(folder_path):
+def get_all_midis_gen(folder_path, generator = False, maxx = 10):
     # os.chdir(folder_path)
-    f1, f2 = [], []
+    f1 = []
+    mx = 0
     for root, dirs, files in os.walk(folder_path, topdown=False):
-        # for name in files:
-        #     print(os.path.join(root, name))
-        for name in dirs:
-            print(os.path.join(root, name))
+        for name in files:
+#             print(os.path.join(root, name))
+            if generator and mx >= maxx: return f1
             p = os.path.join(root, name)
-            f1 += glob.glob(p + '\*.mid')
-            f2 += glob.glob(p + '\*.midi')
-    return f1 + f2
+            if p.endswith('.mid') or p.endswith('.midi'):
+                if generator: yield p
+                f1.append(p)
+                mx += 1
+    return f1
+
+def get_all_midis(folder_path, generator = False, maxx = 10):
+    # os.chdir(folder_path)
+    f1 = []
+    mx = 0
+    for root, dirs, files in os.walk(folder_path, topdown=False):
+        for name in files:
+#             print(os.path.join(root, name))
+            if mx >= maxx: return f1
+            p = os.path.join(root, name)
+            if p.endswith('.mid') or p.endswith('.midi'):
+                f1.append(p)
+                mx += 1
+    return f1
+
+
+
+# def create_path(path, HOME = os.getcwd()):
+#     path = path.split('/')
+#     if path[-1] != '': path.pop()
+#     home = HOME
+#     for d in path:
+#         if not os.path.exists(d): 
+#             os.mkdir(home)
+#             os.chdir(d)
+#     os.chdir(HOME)
+        
 
 def quater_note_to_millis(tempo):
     return tempo / 60000

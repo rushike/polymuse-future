@@ -100,6 +100,18 @@ def ns_to_tarray(ns, resolution = 32, seconds = False):
     # numar = numpy.array(listn)
     return numar
 
+def merge_to_3tracks(ns):
+    for nt in ns.notes:
+        if nt.is_drum: 
+            nt.instrument = 3
+        elif nt.program in constant.lead_track:
+            nt.instrument = 1
+            nt.program = 1
+        else:
+            nt.instrument = 2
+            nt.program = 25
+    return ns
+
 def merge_tarray(t_arr, lead_arr):
     # lead_arr, t_arr = t_arr, lead_arr if len(t_arr) > len(lead_arr) else lead_arr, t_arr #ct_arr > t_arr
     # for i in range(t_arr.shape[0]):

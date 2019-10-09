@@ -1,19 +1,8 @@
-import  numpy, datetime, json, os
 
-from keras.models import Sequential, load_model
-from keras.layers import LSTM, Dropout, Dense, Activation, CuDNNLSTM, TimeDistributed, Flatten
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-from keras.optimizers import Adagrad, Adam, RMSprop
-import tensorflow as tf
 
-from polymuse import dataset2 as d2 
-from keras import backend as kback
 
-from numpy import random
-random.seed(131)
-tf.set_random_seed(131)
 
-HOME = os.getcwd()
+
 
 """
 Model building using keras library
@@ -42,6 +31,30 @@ octave_loss --> to calculate the octave loss, not tested
 predict, predict_b, predict_dense --> predict the next note, time instance based on models and the current input
 
 """
+
+
+
+
+
+
+import  numpy, datetime, json, os
+
+from keras.models import Sequential, load_model
+from keras.layers import LSTM, Dropout, Dense, Activation, CuDNNLSTM, TimeDistributed, Flatten
+from keras.callbacks import ModelCheckpoint, EarlyStopping
+from keras.optimizers import Adagrad, Adam, RMSprop
+import tensorflow as tf
+
+from polymuse import dataset2 as d2 
+from keras import backend as kback
+
+from numpy import random
+random.seed(131)
+tf.set_random_seed(131)
+
+HOME = os.getcwd()
+
+
 
 def load(model): #loads model from .h5 file
     if type(model) == str: return load_model(model)
@@ -209,7 +222,7 @@ def build_sFlat_model(x, y, model_name, IP = None, OP = None, cell_count = 256, 
     callbacks_list = [checkpoint]
     
     
-    history = model.fit(x, y, validation_split = 0.2,  nb_epoch=epochs, callbacks = callbacks_list,  shuffle = False)
+    history = model.fit(x, y, validation_split = 0.2,  nb_epoch=epochs, callbacks = callbacks_list, use_multiprocessing=True, workers=16, max_queue_size=32, shuffle = False)
     print("history keys : " , history.history.keys())
     
     model.save(file_path)

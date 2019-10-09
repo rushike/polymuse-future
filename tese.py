@@ -1,4 +1,4 @@
-from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2, evaluation, constant
+from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2, evaluation, constant, data_generator, rnn_h
 # from polymuse import multi_track
 
 
@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 # from polymuse import pattern
 
 # from scipy.interpolate import make_interp_spline, BSpline
-import numpy, random
+import numpy, random, pprint
 
 import gc
 import warnings
@@ -36,14 +36,14 @@ ns = dataset.to_note_sequence(f)
 # # print(ns)
 # ins = dataset.get_instrument(ns, 0)
 ar = dataset.ns_to_tarray(ns, resolution=64)
-print(ar, ar.shape)
+print(ar.shape, '--ar')
 
-sflatroll = d2.ns_tarray_to_sFlatroll(ar)
+# sflatroll = d2.ns_tarray_to_sFlatroll(ar)
 
-tarr = d2.sFlatroll_to_ns_tarray(sflatroll)
+# tarr = d2.sFlatroll_to_ns_tarray(sflatroll)
 
 
-print(sflatroll, sflatroll.shape, '--- sflatroll .. ')
+# print(sflatroll, sflatroll.shape, '--- sflatroll .. ')
 
 # print("ar : ", ar.shape, "--tarray")
 # s = dataset.tarray_to_sFlat_roll(ar)
@@ -399,4 +399,24 @@ BUilder Testing
 # m_note, m_time, shapes, inp = builder.build_piano_stateful_model(f, epochs=40)
 # # m_note, m_time = rnn.load(mnote), rnn.load(mtime)
 # player.play_piano_stateful_model_single_track(m_note, m_time, shapes, midi_path='c:/Users/rushi/OneDrive/Desktop/for_fun_midi2.mid', inp = inp, instruments = ['guitar'] )
+
+"""
+testing for huge dataset
+through the generator
+"""
+DST = 'F:/rushikesh/project/dataset/lakh_dataset'
+fs = dutils.get_all_midis(DST, maxx= 1)
+
+
+
+data_gen = data_generator.NoteDataGenerator(1, fs, 32, 32)
+
+# for d in range(10):
+#     print(data_gen.__getitem__(d))
+
+print(data_gen)
+rnn_h.build_sFlat_model(data_gen, epochs=1)
+print(data_gen)
+
+
 
