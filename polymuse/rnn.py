@@ -222,7 +222,7 @@ def build_sFlat_model(x, y, model_name, IP = None, OP = None, cell_count = 256, 
     callbacks_list = [checkpoint]
     
     
-    history = model.fit(x, y, validation_split = 0.2,  nb_epoch=epochs, callbacks = callbacks_list, use_multiprocessing=True, workers=16, max_queue_size=32, shuffle = False)
+    history = model.fit(x, y, validation_split = 0.2,  nb_epoch=epochs, callbacks = callbacks_list, shuffle = False)
     print("history keys : " , history.history.keys())
     
     model.save(file_path)

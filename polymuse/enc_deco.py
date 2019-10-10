@@ -25,7 +25,7 @@ def sFlat_to_octave(sflat, depth = 16):
         depth {int} -- [description] (default: {16})
     """
     octave = numpy.zeros(sflat.shape + (2, depth))
-    print("oct sh : ", octave.shape)
+    # print("oct sh : ", octave.shape)
     for i in range(sflat.shape[0]):
         for j in range(sflat.shape[1]):
             for k in range(sflat.shape[2]):

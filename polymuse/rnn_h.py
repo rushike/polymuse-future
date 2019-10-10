@@ -153,7 +153,7 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     os.chdir('stateless')
 
     checkpoint = ModelCheckpoint(
-        file_name, monitor='loss', 
+        file_name + '.h5', monitor='loss', 
         verbose=0,        
         save_best_only=True,        
         mode='min'
@@ -161,8 +161,18 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     callbacks_list = [checkpoint]
     
     
-    history = model.fit_generator(data_gen, verbose = 0, steps_per_epoch = data_gen.steps_per_epoch, epochs= epochs, callbacks = callbacks_list,  shuffle = False)
-    model.save(file_name)
+    history = model.fit_generator(data_gen, verbose = 1, steps_per_epoch = data_gen.steps_per_epoch, epochs= epochs, callbacks = callbacks_list,  shuffle = False)
+    j = 0
+    # while True:
+    #     x, y = data_gen.__getitem__(j)
+    #     history = model.train_on_batch(x , y)
+    #     if data_gen.__exit__(): break
+
+    print("Training Succesfull ...")
+    
+    model.save(file_name + '.h5')
+
+    print("history ", history, ', : ')
    
     # f = HOME + '/hist/piano/stateless/g_h_' + str(cell_count)+ '_m_' + model_name+'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout) + ".json"
     os.chdir(HOME)
@@ -175,7 +185,7 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     os.chdir('stateless')
 
 
-    with open(file_name, 'w') as json_file:
+    with open(file_name + '.json', 'w') as json_file:
         json.dump(history.history, json_file)
     os.chdir(HOME)
     return model

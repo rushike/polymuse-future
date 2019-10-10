@@ -272,8 +272,8 @@ def ns_tarray_to_sFlat(t_arr, DEPTH = 2):
              
     tm_max = max([len(v) for v in sflat])
     
-    print("sfffff : ", sflat)
-    print("tm____max_________________________ : ", tm_max)
+    # print("sfffff : ", sflat)
+    # print("tm____max_________________________ : ", tm_max)
     # print(sflat, "--sflat")
 
     #triming the array

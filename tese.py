@@ -405,7 +405,7 @@ testing for huge dataset
 through the generator
 """
 DST = 'F:/rushikesh/project/dataset/lakh_dataset'
-fs = dutils.get_all_midis(DST, maxx= 1)
+fs = dutils.get_all_midis(DST, maxx= 10)
 
 
 
@@ -415,7 +415,7 @@ data_gen = data_generator.NoteDataGenerator(1, fs, 32, 32)
 #     print(data_gen.__getitem__(d))
 
 print(data_gen)
-rnn_h.build_sFlat_model(data_gen, epochs=1)
+rnn_h.build_sFlat_model(data_gen, epochs=50)
 print(data_gen)
 
 
