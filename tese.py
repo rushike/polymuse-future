@@ -1,8 +1,9 @@
-from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2, evaluation, constant, data_generator, rnn_h
+from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2, evaluation, constant, data_generator, rnn_h, rnn_gpu, pattern
 # from polymuse import multi_track
 
 
-# from polymuse import rnn, rnn_player
+# from polymuse import rnn, 
+from polymuse import rnn_player
 # from polymuse import drawer
 
 from matplotlib import pyplot as plt
@@ -13,7 +14,7 @@ from matplotlib import pyplot as plt
 # from scipy.interpolate import make_interp_spline, BSpline
 import numpy, random, pprint
 
-import gc
+import gc, os
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -405,18 +406,60 @@ testing for huge dataset
 through the generator
 """
 DST = 'F:/rushikesh/project/dataset/lakh_dataset'
-fs = dutils.get_all_midis(DST, maxx= 10)
+fs = dutils.get_all_midis(DST, maxx= 20)
 
 
 
-data_gen = data_generator.NoteDataGenerator(1, fs, 32, 32)
+data_gen = data_generator.NoteDataGenerator(0, fs, 32, 32)
 
 # for d in range(10):
 #     print(data_gen.__getitem__(d))
 
 print(data_gen)
-rnn_h.build_sFlat_model(data_gen, epochs=50)
+rnn_gpu.build_sFlat_model(data_gen, epochs=50, dev = True, cell_count= 512)
 print(data_gen)
 
+
+"""
+Load new models : 
+"""
+ip_memory = 32
+DST = 'F:/rushikesh/project/polymuse-future/h5_models/lead/stateless/'
+
+DST_F = DST + os.listdir(DST)[0]
+
+print('DST 45 : ', DST_F)
+
+model = rnn_gpu.load(DST_F)
+
+print(model)
+
+ini = numpy.array([random.choice(pattern.ip_patterns)])
+
+# ini = numpy.array([ini, ini, ini])
+ini = numpy.append(ini, ini)
+ini = numpy.array([ini])
+print("0000000000000000000 : ini : ", ini.shape)
+ini = d2.ip_patterns_to_octave(ini)
+print('ininininini : ', ini.shape)
+ini, y = dataset.prepare_sFlat_data(ini)
+ini = ini[:, 3]
+
+print('ini : ', ini.shape)
+ini = numpy.append(ini, ini[:, :, 1])
+ini = numpy.reshape(ini, (1, 32, 3, 2, 16))
+print('ini : ', ini.shape)
+
+
+note, time = rnn_player.rnote_player(model, ini= ini[0])
+
+t_array = dataset.snote_time_to_tarray(note, None, deltam= 8)
+
+print("t_array : ", t_array.shape)
+ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= ['piano'])
+
+m_path = 'F:\\rushikesh\\project\\polymuse-future\\midis\\' + 'te' + 'e50zjut' + '.mid'
+
+dataset.ns_to_midi(ns_, m_path)
 
 

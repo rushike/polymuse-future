@@ -1,5 +1,5 @@
 
-from polymuse import rnn, dutils
+from polymuse import rnn, dutils, dataset, dataset2 as d2, enc_deco
 
 import numpy
 """
@@ -284,6 +284,75 @@ def rnn_dense_player(models, ini, ip_memory = None, predict_instances= 400): #wo
         if tick % 32 == 0: print("--", end=" ")
     print("\n")
     return muse_op_piano_n, muse_op_piano_t, muse_op_drum_n 
+
+
+def rnote_player(mnote, ini= None, expected_note= None, ip_memory = 32, predict_instances = 400):
+    model_note = rnn.load(mnote) if type(mnote) == str else mnote
+
+    # ip_memory = ip_memory 
+    
+    inp = numpy.array([ini])
+    # inp = numpy.array(ini_ip)
+    print('inp note shape : ', inp.shape)
+    notes_shape = (1, predict_instances) + inp.shape[2:]
+    bs = inp.shape[0]
+
+    predict_instances = (predict_instances // bs) * bs
+    
+    mem = inp.shape[1]
+    
+    notes = numpy.zeros(notes_shape)
+    time = numpy.zeros((1, predict_instances, 64))
+    print(bs, "--bs")
+    print("notes, time : ", notes.shape, time.shape)
+    # notes[0, :mem, :] = inp #initiating the start
+
+    for tm in range(0, predict_instances):
+        # print("loop", tm)
+        print('inp : ', inp.shape)
+        inp = numpy.reshape(inp, (1, ip_memory,  -1))
+        y = rnn.predict_b(model_note, inp)
+        y = numpy.reshape(y, (1, 3, 2, 16))
+        y_len = numpy.zeros((1, 64))
+        y_len[ :, 8] = 1
+        # print(y.shape, " --------------")
+        if 95 < tm < 150 :
+            # print("inp tm : ", inp_tm)
+            # print("time : ", time[0, :10])
+            # print("shape : ", y.shape)
+            # print("Expected y_len NOTE: ", y_expected_note[tm + 1])
+            # print("y_len : ", dutils.arg_octave_max(y[0, 0]))
+            
+            # print("+=================================================================+")
+            # print("Expected y_len : ", y_expected_time[tm + 1])
+            # print("y_len --  : ", y_len[0])
+            # print("y_len : ", dutils.arg_max(y_len[0]))
+            # print("ynum argmax : ", numpy.argmax(y_len[0]))
+            pass
+        
+        # for j in range(bs):
+        #     y_len[j] = dutils.arg_max(y_len[j])
+        for j in range(bs):
+            # print('y : ', y, y.shape)
+            for i in range(y.shape[1]):
+
+                y[j, i] = dutils.arg_octave_max(y[j, i])    
+
+        notes[0, tm : tm + bs] = y
+        time[0, tm : tm + bs] = y_len
+
+        #Note Value
+        inp = numpy.reshape(inp, (1, ip_memory, 3, 2, 16))
+        inp = shift(inp, axis= 1)
+        add_flatroll(inp, y)
+        
+        #Time Length
+        # inp_tm = shift(inp_tm, axis=1)
+        # add_flatroll(inp_tm, y_len)
+        
+        pass
+    return enc_deco.octave_to_sFlat(notes), enc_deco.enc_tm_to_tm(time)
+
 
 def shift(x,  off = 1, axis = 2):
     return numpy.roll(x, -1 * off, axis)
