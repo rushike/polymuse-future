@@ -32,7 +32,7 @@ predict, predict_b, predict_dense --> predict the next note, time instance based
 import  numpy, datetime, json, os, string
 
 from keras.models import Sequential, load_model
-from keras.layers import LSTM, Dropout, Dense, Activation, TimeDistributed, Flatten
+from keras.layers import LSTM, Dropout, Dense, Activation, CuDNNLSTM, TimeDistributed, Flatten
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.optimizers import Adagrad, Adam, RMSprop
 import tensorflow as tf
@@ -119,16 +119,16 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     model = Sequential()
     # model.add(TimeDistributed(Flatten(input_shape=IP[1:])))
 
-    model.add(LSTM(cell_count, return_sequences=True, input_shape=data_gen.shape[1:]))
+    model.add(CuDNNLSTM(cell_count, return_sequences=True, input_shape=data_gen.shape[1:]))
     model.add(Dropout(dropout))
 
-    model.add(LSTM(cell_count, return_sequences=True))
+    model.add(CuDNNLSTM(cell_count, return_sequences=True))
     model.add(Dropout(dropout))
 
-    model.add(LSTM(cell_count, return_sequences=True))
+    model.add(CuDNNLSTM(cell_count, return_sequences=True))
     model.add(Dropout(dropout))
 
-    model.add(LSTM(cell_count, return_sequences=False))
+    model.add(CuDNNLSTM(cell_count, return_sequences=False))
     model.add(Dropout(dropout))
 
     model.add(Dense(data_gen.shape[2]))

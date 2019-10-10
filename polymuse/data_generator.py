@@ -69,20 +69,22 @@ class NoteDataGenerator(Sequence):
     def __exit__(self):
         if self.top == len(self.seq_names) : return True
         return False
+    def on_epoch_end(self):
+        self.top = 0
 
     def __getitem__(self, idx):
         # if not numpy.isscalar(self.sFlat): self.__read__()
         # if self.sFlat.shape[1] - self.iter - self.ip_memory - 1 < self.batch_size: 
         #     if not self.__read__(): return None, None
-        if self.steps < 0: self.__read__()
+        if self.steps <= 0: self.__read__()
         
         enc = enc_deco.sFlat_to_octave(self.sFlat[:, self.iter : self.iter + self.batch_size + self.ip_memory])  #Improving started 
         x, y = dataset.prepare_sFlat_data(enc, enc_shape= enc.shape[-2: ], ip_memory=self.ip_memory, depth= self.DEPTH)
-        print(x.shape, y.shape, '----> x, y', self.flat_shape)
+        # print(x.shape, y.shape, '----> x, y', self.flat_shape)
         x, y = numpy.reshape(x, x.shape[1:3] + (-1, )), numpy.reshape(y, y.shape[1:2] + (-1, )) #reshaping to fit as rnn input
         self.iter += self.batch_size
         self.steps -= 1
-        print("steps : ", self.steps)
+        # print("steps : ", self.steps)
         # print(x.shape, y.shape, '----> x, y')
         return x, y
 
