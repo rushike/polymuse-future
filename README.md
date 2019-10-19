@@ -56,19 +56,5 @@ train.train(F, maxx = 5) #if GPU version do not works
 
 This snapshot will train the model on dataset given,
 3 files will generated and stored in *dir* strucure :
---h5_models/
-    --piano/
-        --stateful/
-        --stateless/
-    --lead/
-        --stateful/
-        --stateless/
-    --drum/
-        --stateful/
-        --stateless/
-    --chorus/
-        --stateful/
-        --stateless/
-    --dense3/
-        --stateful/
-        --stateless/
+h5_models
+├── chorus                                                                                                              │   └── stateless                                                                                                       │       └── wlvv.h5                                                                                                     ├── drum                                                                                                                │   └── stateless                                                                                                       │       └── vyvh.h5                                                                                                     └── lead                                                                                                                    └── stateless                                                                                                               └── vyvh.h5
