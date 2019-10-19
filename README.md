@@ -17,6 +17,7 @@ Need to discuss .......
 * Components
 * Links
 * Installing ..
+* Training(Note model)
 
 ### Overview
 This is BE project aiming to generate the musical patterns from the midi file that are the audibes to  ***ears***
@@ -38,8 +39,10 @@ This is pre complete installation, package may not run as expected
 install the **polymuse-future** recommended
 
 
-###Train
-Only note training available
+### Train
+Only ***NOTE*** training available
+
+#### Note Training
 ```python
 from polymuse import train
 
