@@ -35,3 +35,37 @@ This is pre complete installation, package may not run as expected
 
 `$ pip install polymuse-future`
 
+install the **polymuse-future** recommended
+
+
+###Train
+Only note training available
+```python
+from polymuse import train
+
+F = dataset_path # It should be absolute PATH(recomended) where midi file are
+
+train.train_gpu(F, maxx = 5) #Only if GPU is available, It uses CuDNNLstm version which performs operation on GPU
+train.train(F, maxx = 5) #if GPU version do not works 
+```
+@dataset_path : It should be absolute PATH(recomended) where midi file are
+@maxx : It is parameters that specifies maximum no of files used to training in case there are large no of files in dataset_path given
+
+This snapshot will train the model on dataset given,
+3 files will generated and stored in *dir* strucure :
+--h5_models/
+    --piano/
+        --stateful/
+        --stateless/
+    --lead/
+        --stateful/
+        --stateless/
+    --drum/
+        --stateful/
+        --stateless/
+    --chorus/
+        --stateful/
+        --stateless/
+    --dense3/
+        --stateful/
+        --stateless/
