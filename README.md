@@ -55,7 +55,7 @@ train.train(F, maxx = 5) #if GPU version do not works
 @maxx : It is parameters that specifies maximum no of files used to training in case there are large no of files in dataset_path given
 
 This snapshot will train the model on dataset given,
-3 files will generated and stored in *dir* strucure :
+3 files will generated and stored in following *dir* strucure :
 h5_models
 ├── chorus                                                                                                              
 │   └── stateless                                                                                                       
@@ -64,5 +64,5 @@ h5_models
 │   └── stateless                                                                                                       
 │       └── vyvh.h5                                                                                                     
 └── lead                                                                                                                    
-    └── stateless                                                                                                               
-        └── vyvh.h5
+|   └── stateless                                                                                                               
+|       └── vyvh.h5
