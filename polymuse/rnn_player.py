@@ -312,7 +312,7 @@ def rnote_player(mnote, ini= None, expected_note= None, ip_memory = 32, predict_
         print('inp : ', inp.shape)
         inp = numpy.reshape(inp, (1, ip_memory,  -1))
         y = rnn.predict_b(model_note, inp)
-        y = numpy.reshape(y, (1, 3, 2, 16))
+        y = numpy.reshape(y, (1, 1, 2, 16))
         y_len = numpy.zeros((1, 64))
         y_len[ :, 8] = 1
         # print(y.shape, " --------------")
@@ -342,7 +342,7 @@ def rnote_player(mnote, ini= None, expected_note= None, ip_memory = 32, predict_
         time[0, tm : tm + bs] = y_len
 
         #Note Value
-        inp = numpy.reshape(inp, (1, ip_memory, 3, 2, 16))
+        inp = numpy.reshape(inp, (1, ip_memory, 1, 2, 16))
         inp = shift(inp, axis= 1)
         add_flatroll(inp, y)
         

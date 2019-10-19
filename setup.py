@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="polymuse-future",
-    version="0.0.60",
+    version="0.0.64",
     # scripts = ['MIDI.py', 'mutils.py', 'rmidi.py', 'sound.py'],
     packages=['polymuse', 'midis', 'h5_models'],
     author="rushike",

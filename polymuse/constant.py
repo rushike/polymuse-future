@@ -79,3 +79,8 @@ depths_of_3tracks = {
                     0 : 1, 1: 3, 2: 2, 
                     'lead' : 1, 'chorus' : 3, 'drum': 2 
                     }
+
+
+type3tracks = {
+                0 : 'lead', 1: 'chorus', 2: 'drum' 
+                }

@@ -114,7 +114,7 @@ def load_piano_drum_dense_models():
         # print(models)
     return tuple(op_models)
 
-def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP = None, cell_count = 256, epochs = 200, batch_size = 32, dropout = .3 ):
+def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP = None, cell_count = 256, epochs = 200, batch_size = 32, dropout = .3, fit = True, dev = True):
 
     model = Sequential()
     # model.add(TimeDistributed(Flatten(input_shape=IP[1:])))
@@ -143,6 +143,8 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     file_name  = ''.join(random.choice(list(string.ascii_lowercase)) for i in range(4))
 
     print('file_name : ', file_name)
+    
+    if not fit: return model
 
     # Make the dir structure for saving h5Models
     if not os.path.exists('h5_models'): os.mkdir('h5_models')
@@ -188,4 +190,28 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     with open(file_name + '.json', 'w') as json_file:
         json.dump(history.history, json_file)
     os.chdir(HOME)
+
+    if dev:
+        F = 'gst' + file_name + '_t' + str(typ) + '_c' + str(cell_count) + '_e' + str(epochs) + '_d' + str(dropout) + '_b' + str(batch_size)
+        if not os.path.exists('archive'): os.mkdir('archive')
+        os.chdir('archive') 
+        if not os.path.exists('hist'): os.mkdir('hist')
+        os.chdir('hist')
+        # if not os.path.exists('stateless'): os.mkdir('stateless')
+        # os.chdir('stateless')
+        with open( 'gst'+ file_name + '.json', 'w') as json_file:
+            json.dump(history.history, json_file)
+        os.chdir(HOME)
+
+        if not os.path.exists('archive'): os.mkdir('archive')
+        os.chdir('archive')
+        if not os.path.exists('models'): os.mkdir('models')
+        os.chdir('models')
+        
+        model.save(F + '.h5')
+
+    os.chdir(HOME)
+
+    
+
     return model
