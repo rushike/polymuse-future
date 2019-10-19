@@ -64,5 +64,5 @@ h5_models
 │   └── stateless                                                                                                       
 │       └── vyvh.h5                                                                                                     
 └── lead                                                                                                                    
-|   └── stateless                                                                                                               
-|       └── vyvh.h5
+    └── stateless                                                                                                               
+        └── vyvh.h5
