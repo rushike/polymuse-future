@@ -56,13 +56,35 @@ train.train(F, maxx = 5) #if GPU version do not works
 
 This snapshot will train the model on dataset given,
 3 files will generated and stored in following *dir* strucure :
-h5_models
-├── chorus                                                                                                              
-│   └── stateless                                                                                                       
-│       └── wlvv.h5                                                                                                     
-├── drum                                                                                                                
-│   └── stateless                                                                                                       
-│       └── vyvh.h5                                                                                                     
-└── lead                                                                                                                    
-│   └── stateless                                                                                                               
-│       └── vyvh.h5
+.h5_models
+:...chorus                                                                                                              
+:....... stateless                                                                                                       
+:...........wlvv.h5                                                                                                     
+:...drum                                                                                                                
+:......stateless                                                                                                       
+:...........vyvh.h5                                                                                                     
+:...lead                                                                                                                    
+:......stateless                                                                                                               
+:.......... vyvh.h5
+
+### Load Pretrain Models
+Below code snapshot downloads the default model, and make above directory structure in current working directory
+```python
+from polymuse import loader
+loader.load(mname = 'default')
+```
+
+### Note Player
+Before using the player please train the models on dataset or load pre trained models
+```python
+from polymuse import player
+# Before this please make sure the h5_models are loaded locally
+
+midi_file = "F:\\rushikesh\\project\\dataset\\lakh_dataset\\Kenny G" # directory where midi file will
+midi_file = dutils.get_all_files(F)[0] # Midi file must be of atleast 3 tracks
+
+player.play_3_track_no_time(midi_file, midi_fname = 'midi00')
+
+```
+
+The above will store midi file in current directory with file name *midi00XXX*
