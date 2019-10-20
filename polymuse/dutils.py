@@ -228,6 +228,25 @@ def get_all_midis(folder_path, generator = False, maxx = 10):
                 mx += 1
     return f1
 
+def get_all_files(folder_path, typ = '', maxx = 1):
+    f1 = []
+    mx = 0
+    typ = None if typ == '' else typ if typ.startswith('.') else '.' + typ
+    for root, dirs, files in os.walk(folder_path, topdown=False):
+        for name in files:
+#             print(os.path.join(root, name))
+            if mx >= maxx: return f1
+            p = os.path.join(root, name)
+            if typ:
+                if typ and p.endswith(typ) or p.endswith(typ):
+                    f1.append(p)
+                    mx += 1
+            else :
+                f1.append(p)
+                mx += 1
+    return f1
+
+
 
 
 # def create_path(path, HOME = os.getcwd()):

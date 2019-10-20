@@ -3,7 +3,7 @@ from polymuse import dataset, dataset2 as d2, constant, enc_deco
 
 from keras.utils import Sequence
 
-import numpy
+import numpy, random
 
 """
 It generates the note data batch wise
@@ -24,12 +24,10 @@ class NoteDataGenerator(Sequence):
         self.shape = (batch_size, ip_memory, self.DEPTH * 32)
         self.steps_per_epoch = 0
         self.steps = 0
-        print("READING STARTED")
         
         self.calc_steps_per_epoch()
         self.top = 0
         self.__read__()
-        print("READ INIT")
         # self.on_epoch_end()
 
     def calc_steps_per_epoch(self):
@@ -100,6 +98,21 @@ class NoteDataGenerator(Sequence):
                 "\n\tshape : " + str(self.shape) + '\n\tsFlat_shape : ' + str(self.flat_shape) + '\n\tsteps_per_epochs : ' + str(self.steps_per_epoch) + \
                 '\n\titer : ' + str(self.iter) +'\n\tEND\n}'
 
+def note_data(f, trk = 0, idx = None, ip_memory = 32, batch_size= 32, DEPTH = 1):
+    # following reads the file to sFalt representaion
+    ns = dataset.to_note_sequence(f)
+    ar = dataset.ns_to_tarray(ns, resolution= 64)
+    sFlat = dataset.ns_tarray_to_sFlat(t_arr= ar[trk: trk + 1 ], DEPTH= DEPTH)
+
+    MX = (sFlat.shape[1] - ip_memory - batch_size)
+    idx = idx if idx else random.randint(0, MX) # get index which slice of ip_memory you want
+    if idx > MX: raise Exception("Index out of bound err : Not in midi file") # if index is greater than MX, out of file 
+    enc = enc_deco.sFlat_to_octave(sFlat[:, idx : idx + batch_size + ip_memory])  # Improving started 
+    x, y = dataset.prepare_sFlat_data(enc, enc_shape= enc.shape[-2: ], ip_memory=ip_memory, depth= DEPTH)
+    return x[0, 0], y[0, 0]
+        
+
+
 """
 Time data generator for batch_training
 
@@ -120,12 +133,10 @@ class TimeDataGenerator(Sequence):
         self.shape = (batch_size, ip_memory, 64)
         self.steps_per_epoch = 0
         self.steps = 0
-        print("READING STARTED")
         
         self.calc_steps_per_epoch()
         self.top = 0
         self.__read__()
-        print("READ INIT")
         # self.on_epoch_end()
 
     def calc_steps_per_epoch(self):

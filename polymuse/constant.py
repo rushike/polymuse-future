@@ -80,7 +80,13 @@ depths_of_3tracks = {
                     'lead' : 1, 'chorus' : 3, 'drum': 2 
                     }
 
+timec_of_3tracks = {
+                    0 : 4, 1: 16, 2: 4,  
+                    }                    
+
 
 type3tracks = {
                 0 : 'lead', 1: 'chorus', 2: 'drum' 
                 }
+
+models_csv = 'https://raw.githubusercontent.com/rushike/polymuse-future/master/models.csv'

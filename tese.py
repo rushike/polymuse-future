@@ -2,7 +2,7 @@ from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2, eva
 # from polymuse import multi_track
 
 
-from polymuse import train
+from polymuse import train, player, loader
 from polymuse import rnn_player
 # from polymuse import drawer
 
@@ -422,11 +422,21 @@ through the generator
 """
 train.py ...
 """
-F = "F:\\rushikesh\\project\\dataset\\lakh_dataset"
-train.train_gpu(F, 5)
+# F = "F:\\rushikesh\\project\\dataset\\lakh_dataset"
+# train.train_gpu(F, 5)
 
+'''
+Player testing
+'''
+# F = "F:\\rushikesh\\project\\dataset\\lakh_dataset\\Kenny G"
+# F = dutils.get_all_files(F)[0]
+ 
+# player.mid_to_wav('./default699.mid')
 
-
+'''
+load
+'''
+loader.load()
 """
 Load new models : 
 """

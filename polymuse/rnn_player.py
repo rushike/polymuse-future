@@ -286,13 +286,12 @@ def rnn_dense_player(models, ini, ip_memory = None, predict_instances= 400): #wo
     return muse_op_piano_n, muse_op_piano_t, muse_op_drum_n 
 
 
-def rnote_player(mnote, ini= None, expected_note= None, ip_memory = 32, predict_instances = 400):
+def rnote_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, DEPTH = 1, predict_instances = 400):
     model_note = rnn.load(mnote) if type(mnote) == str else mnote
 
     # ip_memory = ip_memory 
     
     inp = numpy.array([ini])
-    # inp = numpy.array(ini_ip)
     print('inp note shape : ', inp.shape)
     notes_shape = (1, predict_instances) + inp.shape[2:]
     bs = inp.shape[0]
@@ -312,23 +311,10 @@ def rnote_player(mnote, ini= None, expected_note= None, ip_memory = 32, predict_
         print('inp : ', inp.shape)
         inp = numpy.reshape(inp, (1, ip_memory,  -1))
         y = rnn.predict_b(model_note, inp)
-        y = numpy.reshape(y, (1, 1, 2, 16))
+        y = numpy.reshape(y, (1, DEPTH, 2, 16))
         y_len = numpy.zeros((1, 64))
-        y_len[ :, 8] = 1
+        y_len[ :, TM] = 1
         # print(y.shape, " --------------")
-        if 95 < tm < 150 :
-            # print("inp tm : ", inp_tm)
-            # print("time : ", time[0, :10])
-            # print("shape : ", y.shape)
-            # print("Expected y_len NOTE: ", y_expected_note[tm + 1])
-            # print("y_len : ", dutils.arg_octave_max(y[0, 0]))
-            
-            # print("+=================================================================+")
-            # print("Expected y_len : ", y_expected_time[tm + 1])
-            # print("y_len --  : ", y_len[0])
-            # print("y_len : ", dutils.arg_max(y_len[0]))
-            # print("ynum argmax : ", numpy.argmax(y_len[0]))
-            pass
         
         # for j in range(bs):
         #     y_len[j] = dutils.arg_max(y_len[j])
@@ -342,7 +328,7 @@ def rnote_player(mnote, ini= None, expected_note= None, ip_memory = 32, predict_
         time[0, tm : tm + bs] = y_len
 
         #Note Value
-        inp = numpy.reshape(inp, (1, ip_memory, 1, 2, 16))
+        inp = numpy.reshape(inp, (1, ip_memory, DEPTH, 2, 16))
         inp = shift(inp, axis= 1)
         add_flatroll(inp, y)
         

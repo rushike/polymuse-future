@@ -1,6 +1,6 @@
 from polymuse import dataset, transformer, enc_deco, dutils, dataset2 as d2, evaluation, constant, data_generator, rnn_h, rnn_gpu, pattern
 
-import random
+import random, argparse
 
 
 """
