@@ -90,3 +90,5 @@ type3tracks = {
                 }
 
 models_csv = 'https://raw.githubusercontent.com/rushike/polymuse-future/master/models.csv'
+
+midis_csv = 'https://raw.githubusercontent.com/rushike/polymuse-future/master/midis.csv'

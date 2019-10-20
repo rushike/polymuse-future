@@ -2,14 +2,14 @@ from polymuse import constant
 
 import pandas
 
-import os, requests, zipfile
+import os, requests, zipfile, random
 from google_drive_downloader import GoogleDriveDownloader
 
 
-def load():
-    load_csv(True)
+def load(mname = 'default'):
+    load_csv(constant.models_csv, True)
     csv = pandas.read_csv('models.csv')
-    id_ = csv[csv['model'] == 'default'].to_numpy()[0][1]
+    id_ = csv[csv['model'] == mname].to_numpy()[0][1]
     print(type(id_))
 
     GoogleDriveDownloader.download_file_from_google_drive(id_, dest_path= './h5_models.zip')
@@ -47,8 +47,17 @@ def save_response_content(response, destination):
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
 
-def load_csv(force = False):
-    r = requests.get(constant.models_csv)
+def load_csv(url, force = False):
+    r = requests.get(url)
     if force or not os.path.isfile('models.csv'):
         with open('models.csv', 'wb') as f:
             f.write(r.content)
+
+def load_midi(mname = None):
+    load_csv(constant.midis_csv, True)
+    csv = pandas.read_csv('midis.csv')
+    if not mname: id_ = (random.choice(csv.to_numpy()))[1]
+
+    print(type(id_), id_)
+    dest = './midi' + str(random.randint(0, 1000)) + '.mid'
+    GoogleDriveDownloader.download_file_from_google_drive(id_, dest_path= dest)

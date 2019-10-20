@@ -18,6 +18,8 @@ Need to discuss .......
 * Links
 * Installing ..
 * Training(Note model)
+* Loading
+* Player
 
 ### Overview
 This is BE project aiming to generate the musical patterns from the midi file that are the audibes to  ***ears***
@@ -73,6 +75,15 @@ Below code snapshot downloads the default model, and make above directory struct
 from polymuse import loader
 loader.load(mname = 'default')
 ```
+
+### Load sample midis
+
+Below code snapshot downloads the default midi and download in current directory
+```python
+from polymuse import loader
+loader.load_midi()
+```
+
 
 ### Note Player
 Before using the player please train the models on dataset or load pre trained models
