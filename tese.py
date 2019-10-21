@@ -422,21 +422,23 @@ through the generator
 """
 train.py ...
 """
-# F = "F:\\rushikesh\\project\\dataset\\lakh_dataset"
-# train.train_gpu(F, 5)
+F = "F:\\rushikesh\\project\\dataset\\lakh_dataset"
+train.train_gpu(F, 100)
 
 '''
 Player testing
 '''
 # F = "F:\\rushikesh\\project\\dataset\\lakh_dataset\\Kenny G"
 # F = dutils.get_all_files(F)[0]
- 
+# #  midi_file = 'midi152.mid' # midi file with at least 3 tracks
+
+# player.play_3_track_no_time(F, midi_fname = 'midiout00')
 # player.mid_to_wav('./default699.mid')
 
 '''
 load
 '''
-loader.load()
+# loader.load_midi()
 """
 Load new models : 
 """

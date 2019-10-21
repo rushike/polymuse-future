@@ -308,7 +308,7 @@ def rnote_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, 
 
     for tm in range(0, predict_instances):
         # print("loop", tm)
-        print('inp : ', inp.shape)
+        # print('inp : ', inp.shape)
         inp = numpy.reshape(inp, (1, ip_memory,  -1))
         y = rnn.predict_b(model_note, inp)
         y = numpy.reshape(y, (1, DEPTH, 2, 16))

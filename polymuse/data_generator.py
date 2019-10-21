@@ -105,6 +105,7 @@ def note_data(f, trk = 0, idx = None, ip_memory = 32, batch_size= 32, DEPTH = 1)
     sFlat = dataset.ns_tarray_to_sFlat(t_arr= ar[trk: trk + 1 ], DEPTH= DEPTH)
 
     MX = (sFlat.shape[1] - ip_memory - batch_size)
+    if MX < 0: MX = 1
     idx = idx if idx else random.randint(0, MX) # get index which slice of ip_memory you want
     if idx > MX: raise Exception("Index out of bound err : Not in midi file") # if index is greater than MX, out of file 
     enc = enc_deco.sFlat_to_octave(sFlat[:, idx : idx + batch_size + ip_memory])  # Improving started 

@@ -7,7 +7,7 @@ from google_drive_downloader import GoogleDriveDownloader
 
 
 def load(mname = 'default'):
-    load_csv(constant.models_csv, True)
+    load_csv(constant.models_csv,'models.csv', True)
     csv = pandas.read_csv('models.csv')
     id_ = csv[csv['model'] == mname].to_numpy()[0][1]
     print(type(id_))
@@ -47,17 +47,18 @@ def save_response_content(response, destination):
             if chunk: # filter out keep-alive new chunks
                 f.write(chunk)
 
-def load_csv(url, force = False):
+def load_csv(url, filename, force = False):
     r = requests.get(url)
-    if force or not os.path.isfile('models.csv'):
-        with open('models.csv', 'wb') as f:
+    if force or not os.path.isfile(filename):
+        with open(filename, 'wb') as f:
             f.write(r.content)
 
-def load_midi(mname = None):
-    load_csv(constant.midis_csv, True)
+def load_midi(mname = None, randomm = False):
+    load_csv(constant.midis_csv, 'midis.csv', True)
     csv = pandas.read_csv('midis.csv')
     if not mname: id_ = (random.choice(csv.to_numpy()))[1]
 
     print(type(id_), id_)
-    dest = './midi' + str(random.randint(0, 1000)) + '.mid'
+    randm = str(random.randint(0, 1000)) if randomm else ''
+    dest = './midi' + randm + '.mid'
     GoogleDriveDownloader.download_file_from_google_drive(id_, dest_path= dest)

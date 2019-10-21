@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="polymuse-future",
-    version="0.0.67",
+    version="0.0.73",
     # scripts = ['MIDI.py', 'mutils.py', 'rmidi.py', 'sound.py'],
     packages=['polymuse', 'midis', 'h5_models'],
     author="rushike",
@@ -14,7 +14,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rushike/polymuse-future",
-    install_requires=['numpy', 'magenta', 'keras', 'pyfiglet', 'midi2audio', 'google_drive_downloader'],
+    install_requires=['numpy', 'magenta', 'magenta-gpu', 'keras', 'pyfiglet', 'midi2audio', 'googledrivedownloader'],
     # packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
