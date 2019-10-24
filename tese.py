@@ -146,31 +146,7 @@ Polyphonic Index : 0 - 1
 Tonal Span : > 1, max means better
 Scale Consistency : 0 - 1
 """
-# m_path = "F:\\rushikesh\\project\\polymuse-future\\midis\\multi\\" + "sync_pattern_multitrack_v2.mid"
-# # ns = dataset.to_array(f)
-# ns = dataset.to_note_sequence(m_path)
-# # # print(ns)
-# # ins = dataset.get_instrument(ns, 0)
-# ar = dataset.ns_to_tarray(ns, resolution=64)
-# pi = evaluation.polyphonic_index(ar, 4 , avg= False)
-# sc = evaluation.scale_consistency(ar)
-# td = evaluation.tonal_span_local(ar)
-
-# print("Polyhonic Index : ", pi, pi.shape)
-# print("Polyphonic avg score", pi.mean())
-# print("=========================================================================================================\n")
-# print("Scale Consitency : ", sc, sc.shape)
-# print('Tone in scales : ', evaluation.scale_name(sc))
-# print("=========================================================================================================\n")
-# print("Tonal Distance : ", td, td.shape)
-# print("Average tonal distance : ", td.mean(axis = 1))
-
-# evaluation.view_2D(sc, xaxis=constant.scale_names['major'].extend(constant.scale_names['minor']), yname='Scale Consitency')
-# print("=========================================================================================================\n")
-# evaluation.view_2D(td, xname='Tonal Distance')
-# print("=========================================================================================================\n")
-# evaluation.view_1D(pi, title="Polyphony Score")
-
+# 33
 """
 drum model
 """
@@ -423,7 +399,7 @@ through the generator
 train.py ...
 """
 F = "F:\\rushikesh\\project\\dataset\\lakh_dataset"
-train.train_gpu(F, 100)
+train.train_gpu(F, 5)
 
 '''
 Player testing
@@ -434,6 +410,15 @@ Player testing
 
 # player.play_3_track_no_time(F, midi_fname = 'midiout00')
 # player.mid_to_wav('./default699.mid')
+
+"""
+Track player 
+"""
+F = "F:\\rushikesh\\project\\dataset\\lakh_dataset\\Kenny G"
+# F = dutils.get_all_files(F)[0]
+
+# player.play_on_3_track_no_time(F, midi_fname='midiout11')
+
 
 '''
 load

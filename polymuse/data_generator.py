@@ -98,7 +98,7 @@ class NoteDataGenerator(Sequence):
                 "\n\tshape : " + str(self.shape) + '\n\tsFlat_shape : ' + str(self.flat_shape) + '\n\tsteps_per_epochs : ' + str(self.steps_per_epoch) + \
                 '\n\titer : ' + str(self.iter) +'\n\tEND\n}'
 
-def note_data(f, trk = 0, idx = None, ip_memory = 32, batch_size= 32, DEPTH = 1):
+def note_data(f, trk = 0, idx = None, ip_memory = 32, batch_size= 32, DEPTH = 1, all_ = False):
     # following reads the file to sFalt representaion
     ns = dataset.to_note_sequence(f)
     ar = dataset.ns_to_tarray(ns, resolution= 64)
@@ -110,6 +110,7 @@ def note_data(f, trk = 0, idx = None, ip_memory = 32, batch_size= 32, DEPTH = 1)
     if idx > MX: raise Exception("Index out of bound err : Not in midi file") # if index is greater than MX, out of file 
     enc = enc_deco.sFlat_to_octave(sFlat[:, idx : idx + batch_size + ip_memory])  # Improving started 
     x, y = dataset.prepare_sFlat_data(enc, enc_shape= enc.shape[-2: ], ip_memory=ip_memory, depth= DEPTH)
+    if all_ : return x[0], y[0]
     return x[0, 0], y[0, 0]
         
 

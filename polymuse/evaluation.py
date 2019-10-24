@@ -2,8 +2,13 @@
 
 import numpy
 import matplotlib.pyplot as plt
+import matplotlib
 
 from polymuse import constant
+
+font = {'family' : 'normal',
+        'size'   : 12}	
+matplotlib.rc('font', **font)
 
 """
 The file contains functionality to evaluate the output from the various models
@@ -96,7 +101,7 @@ def tonal_span_local(tarr, group = 32):
 
 
 
-def view_2D(arr2D, xaxis = None, xname= 'X', yname= 'Tonal Span', title = 'Track'):
+def view_2D(arr2D, xaxis = None, xname= 'X', yname= 'Tonal Span', title = 'Track', xlabel = None, ylabel = None):
     ts = numpy.ceil(numpy.sqrt(arr2D.shape[0]))
 
     fig = plt.figure()
@@ -106,18 +111,57 @@ def view_2D(arr2D, xaxis = None, xname= 'X', yname= 'Tonal Span', title = 'Track
         ax = fig.add_subplot(ts, ts, i + 1)
         ax.plot(xaxis, arr2D[i], label = yname + ' vs ' + xname + ' ' + str(i))
         ax.title.set_text(title + str(i))
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
         ax.legend()
     plt.show()
 
+def view_2D_list(arr2D, xaxis = None, MX = None, xname= 'X', yname= 'Tonal Span', title = 'Track', xlabel = None, ylabel = None):
+    ts = numpy.ceil(numpy.sqrt(arr2D[0].shape[0]))
 
-def view_1D(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span'):
+    fig = plt.figure()
+    fig.subplots_adjust(hspace=0.4, wspace=0.4)
+    ar  = [arr2D[i].shape[1] for i in range(len(arr2D))]
+    print(ar, "ar")
+    MX = min(ar) if not MX else MX
+    print(MX, "MX")
+    xaxis = numpy.arange(MX) if not xaxis else xaxis   
+    for j in range(len(arr2D)):
+        # xaxis = numpy.arange(arr2D[j].shape[1])
+        for i in range(arr2D[j].shape[0]):
+            ax = fig.add_subplot(ts, ts, i + 1)
+            ax.plot(xaxis, arr2D[j][i][:MX], label = yname + ' vs ' + xname + ' ' + str(i) + str(j))
+            ax.title.set_text(title + " " + str(i))
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            ax.legend(loc = "upper right")
+    plt.show()
+
+
+def view_1D(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span', xlabel = None, ylabel = None):
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
     x = numpy.arange(arr1D.shape[0])
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(x, arr1D, label = yname + ' vs Time ')
     ax.title.set_text(title)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
     ax.legend()
     plt.show()
 
+def view_1D_list(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span', xlabel = None, ylabel = None):
+    fig = plt.figure()
+    fig.subplots_adjust(hspace=0.4, wspace=0.4)
+    ar  = [arr1D[i].shape[0] for i in range(len(arr1D))]
+    MX = min(ar)
+    x = numpy.arange(MX)
+    for i in range(len(arr1D)):
+        ax = fig.add_subplot(1, 1, 1)
+        ax.plot(x, arr1D[i][:MX], label = yname + ' vs Time ')
+        ax.title.set_text(title)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.legend()
+    plt.show()
 

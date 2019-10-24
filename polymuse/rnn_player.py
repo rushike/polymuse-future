@@ -1,7 +1,7 @@
 
 from polymuse import rnn, dutils, dataset, dataset2 as d2, enc_deco
 
-import numpy
+import numpy, random
 """
 rnn_player -- capable of playing/generating the music output as octave/time encoded representation
 
@@ -331,6 +331,119 @@ def rnote_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, 
         inp = numpy.reshape(inp, (1, ip_memory, DEPTH, 2, 16))
         inp = shift(inp, axis= 1)
         add_flatroll(inp, y)
+        
+        #Time Length
+        # inp_tm = shift(inp_tm, axis=1)
+        # add_flatroll(inp_tm, y_len)
+        
+        pass
+    return enc_deco.octave_to_sFlat(notes), enc_deco.enc_tm_to_tm(time)
+
+
+def rnote_random_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, DEPTH = 1, predict_instances = 400):
+    model_note = rnn.load(mnote) if type(mnote) == str else mnote
+
+    # ip_memory = ip_memory 
+    
+    inp = numpy.array([ini])
+    print('inp note shape : ', inp.shape)
+    notes_shape = (1, predict_instances) + inp.shape[2:]
+    bs = inp.shape[0]
+
+    predict_instances = (predict_instances // bs) * bs
+    
+    mem = inp.shape[1]
+    
+    notes = numpy.zeros(notes_shape)
+    time = numpy.zeros((1, predict_instances, 64))
+    print(bs, "--bs")
+    print("notes, time : ", notes.shape, time.shape)
+    # notes[0, :mem, :] = inp #initiating the start
+
+    for tm in range(0, predict_instances):
+        # print("loop", tm)
+        # print('inp : ', inp.shape)
+        inp = numpy.reshape(inp, (1, ip_memory,  -1))
+        y = rnn.predict_b(model_note, inp)
+        y = numpy.reshape(y, (1, DEPTH, 2, 16))
+        y_len = numpy.zeros((1, 64))
+        y_len[ :, TM] = 1
+        # print(y.shape, " --------------")
+        
+        # for j in range(bs):
+        #     y_len[j] = dutils.arg_max(y_len[j])
+        for j in range(bs):
+            # print('y : ', y, y.shape)
+            for i in range(y.shape[1]):
+
+                y[j, i] = dutils.arg_octave_max(y[j, i])    
+
+        notes[0, tm : tm + bs] = y
+        time[0, tm : tm + bs] = y_len
+
+        #Note Value
+        inp = numpy.reshape(inp, (1, ip_memory, DEPTH, 2, 16))
+        inp = shift(inp, axis= 1)
+        add_flatroll(inp, y)
+        
+        #Time Length
+        # inp_tm = shift(inp_tm, axis=1)
+        # add_flatroll(inp_tm, y_len)
+        
+        pass
+    return enc_deco.octave_to_sFlat(notes), enc_deco.enc_tm_to_tm(time)
+
+def rnote_track_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, DEPTH = 1, predict_instances = 400):
+    model_note = rnn.load(mnote) if type(mnote) == str else mnote
+
+    # ip_memory = ip_memory 
+    
+    inp = numpy.array(ini)
+    print('inp note shape : ', inp.shape)
+    notes_shape = (1, predict_instances) + inp.shape[2:]
+    bs = 1
+
+    predict_instances = (predict_instances // bs) * bs
+    
+    mem = inp.shape[1]
+    
+    notes = numpy.zeros(notes_shape)
+    time = numpy.zeros((1, predict_instances, 64))
+    print(bs, "--bs")
+    print("notes, time : ", notes.shape, time.shape)
+    # notes[0, :mem, :] = inp #initiating the start
+    k = 0
+    for tm in range(0, predict_instances):
+        # print("loop", tm)
+
+        if k >= inp.shape[0] and inp.shape[0] != 1: k = random.randint(0, inp.shape[0] - 1)
+        if inp.shape[0] == 0: k = 0
+        print('inp : ', inp[k].shape, "k : ", k)
+        inp_ = numpy.reshape(inp[k:k+1], (1, ip_memory,  -1))
+        y = rnn.predict_b(model_note, inp_)
+        y = numpy.reshape(y, (1, DEPTH, 2, 16))
+        y_len = numpy.zeros((1, 64))
+        y_len[ :, TM] = 1
+        # print(y.shape, " --------------")
+        
+        # for j in range(bs):
+        #     y_len[j] = dutils.arg_max(y_len[j])
+        for j in range(bs):
+            # print('y : ', y, y.shape)
+            for i in range(y.shape[1]):
+
+                y[j, i] = dutils.arg_octave_max(y[j, i])    
+
+        notes[0, tm : tm + bs] = y
+        time[0, tm : tm + bs] = y_len
+
+
+        k += 1
+
+        #Note Value
+        # inp = numpy.reshape(inp, (1, ip_memory, DEPTH, 2, 16))
+        # inp = shift(inp, axis= 1)
+        # add_flatroll(inp, y)
         
         #Time Length
         # inp_tm = shift(inp_tm, axis=1)

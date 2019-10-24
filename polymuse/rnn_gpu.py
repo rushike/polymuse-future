@@ -35,10 +35,13 @@ from keras.models import Sequential, load_model
 from keras.layers import LSTM, Dropout, Dense, Activation, CuDNNLSTM, TimeDistributed, Flatten
 from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.optimizers import Adagrad, Adam, RMSprop
+from keras import backend as kback
 import tensorflow as tf
 
 from polymuse import dataset2 as d2 , constant
-from keras import backend as kback
+
+
+from keras.losses import categorical_crossentropy, mean_squared_error
 
 from numpy import random
 random.seed(131)
@@ -55,6 +58,30 @@ HOME = os.getcwd()
 
 def load(model): #loads model from .h5 file
     if type(model) == str: return load_model(model)
+
+def rmsecat(depth):
+    # print(y_true.shape, y_pred.shape, "=======================================================")
+    def rmsecat_(y_true, y_pred):
+        a = []
+        h_ = None
+        for i in range(depth * 2):
+            h__ = categorical_crossentropy(y_true[:, i : i + 16], y_pred[ :, i : i + 16]) 
+            # f_ = h__.eval(session= tf.compat.v1.Session())
+            # print(kback.eval(tf.shape(h__)), " o ooooooooooooooooooooooooo")
+            if h_ is None: h_ = tf.square(h__)
+            else: h_ += tf.square(h__)
+
+        print("[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[----]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]   : ")
+        a = (tf.sqrt(h_) / (2 * depth))
+        print(tf.shape(a), "..............................................................")
+        # m = numpy.mean(a, axis= 1)
+        return a
+    def rmsecat__(y_true, y_pred):
+        e = 1e-12
+        y_pred = kback.clip(y_pred, e, 1. - e)
+        
+
+    return rmsecat_
 
 def predict(model, x, batch_size = 32):
     IP = x.shape
@@ -137,7 +164,8 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
 
     es = EarlyStopping(monitor = 'val_loss', mode='min', verbose=1, patience=50)
 
-    model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=['acc'])
+    # model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=['acc'])
+    model.compile(loss=rmsecat(data_gen.DEPTH), optimizer='adam', metrics=['acc'])
     
     # file_info = 'gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
     file_name  = ''.join(random.choice(list(string.ascii_lowercase)) for i in range(4))
@@ -152,16 +180,16 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     if not os.path.exists('stateless'): os.mkdir('stateless')
     os.chdir('stateless')
 
-    checkpoint = ModelCheckpoint(
-        file_name + '.h5', monitor='loss', 
-        verbose=0,        
-        save_best_only=True,        
-        mode='min'
-    )    
-    callbacks_list = [checkpoint]
+    # checkpoint = ModelCheckpoint(
+    #     file_name + '.h5', monitor='loss', 
+    #     verbose=0,        
+    #     save_best_only=True,        
+    #     mode='min'
+    # )    
+    # callbacks_list = [checkpoint]
     
-    
-    history = model.fit_generator(data_gen, verbose = 1, steps_per_epoch = data_gen.steps_per_epoch, epochs= epochs, callbacks = callbacks_list,  shuffle = False)
+    # callbacks = callbacks_list
+    history = model.fit_generator(data_gen, verbose = 1, steps_per_epoch = data_gen.steps_per_epoch, epochs= epochs,  shuffle = False)
     j = 0
     # while True:
     #     x, y = data_gen.__getitem__(j)
