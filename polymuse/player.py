@@ -4,12 +4,25 @@ from polymuse import multi_track, data_generator
 
 from polymuse import rnn_player
 from polymuse import drawer
+from polymuse.losses import rmsecat
 
 
 from keras.models import load_model
 
 import numpy, os, random
 from midi2audio import FluidSynth
+
+# def rmsecat(depth):   
+#     def rmsecat_(y_true, y_pred):
+#         a = []
+#         h_ = None
+#         for i in range(depth * 2):
+#             h__ = categorical_crossentropy(y_true[:, i : i + 16], y_pred[ :, i : i + 16]) 
+#             if h_ is None: h_ = tf.square(h__)
+#             else: h_ += tf.square(h__)
+#         a = (tf.sqrt(h_) / (2 * depth))
+#         return a
+#     return rmsecat_
 
 # def play_piano_model_single_track(m_note, m_time, shapes, model_name = 'note_time', midi_path = None, x_nt = None, x_t = None, y_nt = None, y_t = None, ip_memory = 32, instruments = ['piano']):    
 #     ip_nt = numpy.zeros(shapes[0])
@@ -71,7 +84,7 @@ def play_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guita
     if not os.path.isfile(input_file): raise FileNotFoundError("Input file specified is not a file : ")
     model_home = './h5_models/'
     st = 'stateless/'
-    models = [load_model(dutils.get_all_files(model_home + constant.type3tracks[i])[0]) for i in range(3)]
+    models = [load_model(get_mfile(state = 'stateless'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
     print(models)
 
     
@@ -93,7 +106,9 @@ def play_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guita
 
     for i in range(3):
         t_array[i, : tarr[i].shape[1]] = tarr[i][0]
-
+    for i in range(t_array.shape[0]):
+        for j in range(t_array.shape[1]):
+            if t_array[i, j, 1] > 127: t_array[i, j, 1] %= 127
     if midi: 
         mid_path = './' + midi_fname + str(random.randint(0, 1000)) + '.mid'
         ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= instruments, drm = 2)
@@ -104,20 +119,16 @@ def play_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guita
             fs.play_midi(mid_path)
         if wav:
             fs.midi_to_audio(mid_path, mid_path[:-3] + '.wav')
-        
-
-
-    
+          
     return t_array
 
 def play_on_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guitar','choir aahs'], midi = True, midi_fname = 'default', wav = False, play = False):
     if not os.path.isfile(input_file): raise FileNotFoundError("Input file specified is not a file : ")
     model_home = './h5_models/'
     st = 'stateless/'
-    models = [load_model(dutils.get_all_files(model_home + constant.type3tracks[i])[0]) for i in range(3)]
+    models = [load_model(get_mfile(state = 'stateless'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
     print(models)
 
-    
     tarr = []
     for i in range(3):
         x, y = data_generator.note_data(input_file, trk= i, DEPTH= constant.depths_of_3tracks[i], all_= True)
@@ -131,12 +142,68 @@ def play_on_3_track_no_time(input_file, raw = False, instruments = ['piano', 'gu
 
     mx_tm = max([v.shape[1] for v in tarr])
 
+    t_array = numpy.zeros((3, mx_tm, 4))
+
+    for i in range(3):
+        t_array[i, : tarr[i].shape[1]] = tarr[i][0]
+    for i in range(t_array.shape[0]):
+        for j in range(t_array.shape[1]):
+            if t_array[i, j, 1] > 127: t_array[i, j, 1] %= 127
+    if midi: 
+        mid_path = './' + midi_fname + str(random.randint(0, 1000)) + '.mid'
+        ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= instruments, drm = 2)
+        dataset.ns_to_midi(ns_, mid_path)
+        fs = FluidSynth()
+        print(mid_path, " --midi\n", mid_path[:-3] + '.wav', " --wav")
+        if play:
+            fs.play_midi(mid_path)
+        if wav:
+            fs.midi_to_audio(mid_path, mid_path[:-3] + '.wav')    
+    return t_array
+
+
+def play_statefull_3track(input_file, raw = False, instruments = ['piano', 'guitar','choir aahs'], midi = True, midi_fname = 'default', wav = False, play = False):
+    """Plays the songs through stateful models
+    
+    Arguments:
+        input_file {[type]} -- [description]
+    
+    Keyword Arguments:
+        raw {bool} -- [description] (default: {False})
+        instruments {list} -- [description] (default: {['piano', 'guitar','choir aahs']})
+        midi {bool} -- [description] (default: {True})
+        midi_fname {str} -- [description] (default: {'default'})
+        wav {bool} -- [description] (default: {False})
+        play {bool} -- [description] (default: {False})
+    """
+    if not os.path.isfile(input_file): raise FileNotFoundError("Input file specified is not a file : ")
+
+    models = [load_model(get_mfile(state = 'stateful'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
+    print(models)
+
+    
+    tarr = []
+    for i in range(3):
+        x, y = data_generator.note_data(input_file, trk= i, DEPTH= constant.depths_of_3tracks[i], all_= True) # taking all elements equal to batch size
+        print(x.shape, y.shape, "--x , --y")
+        note = rnn_player.rsingle_note_stateful_play(models[i], x,  predict_instances= constant.predict_instances[i])
+        note = enc_deco.octave_to_sFlat(note)
+        print(note, note.shape, " -- shape")
+        t_array = dataset.snote_time_to_tarray(note, None, deltam= constant.timec_of_3tracks[i], velo = constant.velocity[i])
+        tarr.append(t_array)
+
+    if raw: return tuple(tarr)
+
+    mx_tm = max([v.shape[1] for v in tarr])
+
 
     t_array = numpy.zeros((3, mx_tm, 4))
 
     for i in range(3):
         t_array[i, : tarr[i].shape[1]] = tarr[i][0]
-
+    for i in range(t_array.shape[0]):
+        for j in range(t_array.shape[1]):
+            if t_array[i, j, 1] > 127: t_array[i, j, 1] %= 127
     if midi: 
         mid_path = './' + midi_fname + str(random.randint(0, 1000)) + '.mid'
         ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= instruments, drm = 2)
@@ -147,12 +214,10 @@ def play_on_3_track_no_time(input_file, raw = False, instruments = ['piano', 'gu
             fs.play_midi(mid_path)
         if wav:
             fs.midi_to_audio(mid_path, mid_path[:-3] + '.wav')
-        
-
-
-    
+          
     return t_array
 
+    pass
 
 def play_midi(midi_file, fs = FluidSynth()):
     fs.play_midi(midi_file)
@@ -165,3 +230,7 @@ def mid_to_wav(midi_file, fs = FluidSynth()):
 def play_single_track(model, file_path = None, x = None, y = None):
     pass
 
+def get_mfile(state = 'stateless'):
+    model_home = './h5_models/'
+    f = dutils.get_all_files(model_home + constant.type3tracks[i] + state)
+    return random.choice(f)

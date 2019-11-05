@@ -46,6 +46,7 @@ from keras.optimizers import Adagrad, Adam, RMSprop
 import tensorflow as tf
 
 from polymuse import dataset2 as d2 
+from polymuse.losses import rmsecat
 from keras import backend as kback
 
 from numpy import random
@@ -101,6 +102,19 @@ def octave_loss(y_true, y_pred):
 
     print(oct_loss, oct_loss.shape)
     return oct_loss 
+
+
+def rmsecat(depth):   
+    def rmsecat_(y_true, y_pred):
+        a = []
+        h_ = None
+        for i in range(depth * 2):
+            h__ = categorical_crossentropy(y_true[:, i : i + 16], y_pred[ :, i : i + 16]) 
+            if h_ is None: h_ = tf.square(h__)
+            else: h_ += tf.square(h__)
+        a = (tf.sqrt(h_) / (2 * depth))
+        return a
+    return rmsecat_
 
 def predict(model, x, batch_size = 32):
     IP = x.shape

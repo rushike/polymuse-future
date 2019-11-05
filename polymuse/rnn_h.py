@@ -38,6 +38,7 @@ from keras.optimizers import Adagrad, Adam, RMSprop
 import tensorflow as tf
 
 from polymuse import dataset2 as d2 , constant
+from polymuse.losses import rmsecat
 from keras import backend as kback
 
 from numpy import random
@@ -83,6 +84,9 @@ def predict_dense(model, x):
     y = model.predict_on_batch(x)
     y = y.reshape(sh)
     return y
+
+
+
 
 def load_piano_drum_dense_models():
     drm_dense = HOME + '/h5_models/'

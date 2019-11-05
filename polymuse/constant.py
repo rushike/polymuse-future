@@ -84,6 +84,14 @@ timec_of_3tracks = {
                     0 : 4, 1: 16, 2: 4,  
                     }                    
 
+predict_instances = {
+                    0 : 256, 1 : 64, 2: 128
+                    }
+
+velocity = {
+            0 : 90, 1 : 90, 2: 70
+            }
+
 
 type3tracks = {
                 0 : 'lead', 1: 'chorus', 2: 'drum' 

@@ -3,7 +3,7 @@ from polymuse import dataset, dataset2 as d2, constant, enc_deco
 
 from keras.utils import Sequence
 
-import numpy, random
+import numpy, random, traceback
 
 """
 It generates the note data batch wise
@@ -11,7 +11,7 @@ Returns:
     NoteDataGenerator -- generator class for note while trainin
 """
 class NoteDataGenerator(Sequence):
-    def __init__(self, trk, seq_names, batch_size, ip_memory):
+    def __init__(self, trk, seq_names, batch_size, ip_memory, enc = True):
         self.seq_names = numpy.array(seq_names) # list of midi files avalable
         self.batch_size = batch_size # batch size used while training , i.e. no. of instances at time
         self.sFlat = None # strores the sFlat representation of midi file
@@ -24,6 +24,7 @@ class NoteDataGenerator(Sequence):
         self.shape = (batch_size, ip_memory, self.DEPTH * 32)
         self.steps_per_epoch = 0
         self.steps = 0
+        self.enc = enc # if to encode the sFlat to octave encoding
         
         self.calc_steps_per_epoch()
         self.top = 0
@@ -31,16 +32,20 @@ class NoteDataGenerator(Sequence):
         # self.on_epoch_end()
 
     def calc_steps_per_epoch(self):
+        # i = 0
         for mid in self.seq_names:
             filec = self.__next_file__()
             try : 
-                ns = dataset.to_note_sequence(filec)
-            except: continue
+                ns = dataset.to_pretty_midi(filec)
+                ns = dataset.pretty_midi_to_ns(ns)
+            except Exception:
+                continue
+            
             ns = dataset.merge_to_3tracks(ns)
             ar = dataset.ns_to_tarray(ns, resolution=64)
             if ar.shape[0] < 3: continue
             self.sFlat = dataset.ns_tarray_to_sFlat(t_arr= ar[ self.trk: self.trk + 1 ], DEPTH= self.DEPTH)
-            self.steps_per_epoch += ((self.sFlat.shape[1] // self.batch_size) * self.batch_size + 1) // self.batch_size  - 1
+            self.steps_per_epoch += ((self.sFlat.shape[1] // self.batch_size)) - 1
                     
 
     def __next_file__(self):
@@ -55,11 +60,9 @@ class NoteDataGenerator(Sequence):
         while not self.__exit__():
             try  :
                 filec = self.__next_file__()
-                
                 ns = dataset.to_note_sequence(filec)
                 break
             except: 
-        
                 continue
         if not ns :return False
         ns = dataset.merge_to_3tracks(ns)     
@@ -82,9 +85,11 @@ class NoteDataGenerator(Sequence):
 
     def __getitem__(self, idx):
         if self.steps <= 0: self.__read__()
-        
-        enc = enc_deco.sFlat_to_octave(self.sFlat[:, self.iter : self.iter + self.batch_size + self.ip_memory])  #Improving started 
-        x, y = dataset.prepare_sFlat_data(enc, enc_shape= enc.shape[-2: ], ip_memory=self.ip_memory, depth= self.DEPTH)
+        enc = self.sFlat[:, self.iter : self.iter + self.batch_size + self.ip_memory]
+        if self.enc: enc = enc_deco.sFlat_to_octave(self.sFlat[:, self.iter : self.iter + self.batch_size + self.ip_memory])  #Improving started 
+        shape = enc.shape[-2: ] if self.enc else tuple()
+        # print(shape, enc.shape)
+        x, y = dataset.prepare_sFlat_data(enc, enc_shape= shape, ip_memory=self.ip_memory, depth= self.DEPTH)
         # print(x.shape, y.shape, '----> x, y', self.flat_shape)
         x, y = numpy.reshape(x, x.shape[1:3] + (-1, )), numpy.reshape(y, y.shape[1:2] + (-1, )) #reshaping to fit as rnn input
         self.iter += self.batch_size

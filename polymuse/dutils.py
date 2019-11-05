@@ -247,6 +247,15 @@ def get_all_files(folder_path, typ = '', maxx = 1):
     return f1
 
 
+def sample(preds, temperature= 1.0, choice_random = True):
+    # helper function to sample an index from a probability array
+    preds = numpy.asarray(preds).astype('float64')
+    preds = numpy.log(preds) / temperature
+    exp_preds = numpy.exp(preds)
+    preds = exp_preds / numpy.sum(exp_preds)
+    probas = numpy.random.multinomial(1, preds, 1)
+    if choice_random: return numpy.random.choice(probas.shape[0], p = probas)
+    return numpy.argmax(probas)
 
 
 # def create_path(path, HOME = os.getcwd()):
@@ -511,3 +520,9 @@ def arg_octave_max(octn):
     octn[1, mx1] = 1
     octn[1, octn[1] != 1] = 0
     return octn
+
+def arg_oct_max(octn, freqn, size= 16):
+    res = numpy.zeros((2, size))
+    res[0, octn] = 1
+    res[1, freqn] = 1
+    return res

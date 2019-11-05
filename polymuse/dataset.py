@@ -3,7 +3,7 @@ from polymuse import constant
 from magenta.music import midi_io
 # from magenta.protobuf.music_pb2 import NoteSequence
 from magenta.protobuf import music_pb2
-import numpy, copy, sys
+import numpy, copy, sys, traceback
 
 """
 It includes the basic fuctionlity of input in and out, from midi to one of representation used in polymuse
@@ -21,6 +21,9 @@ def to_note_sequence(midi_file_path):
 
 def to_pretty_midi(midi_file_path):
     return midi_io.pretty_midi.PrettyMIDI(midi_file_path)
+
+def pretty_midi_to_ns(pretty_midi):
+    return midi_io.midi_to_note_sequence(pretty_midi)
 
 def to_array(midi_file_path, seconds = False):
     # print(midi_file_path, type(midi_file_path))
@@ -406,7 +409,7 @@ def note_time_to_tarray(note, time):
     # print(tarr, tarr.shape)
     return tarr
 
-def snote_time_to_tarray(note, time, deltam = None):
+def snote_time_to_tarray(note, time, deltam = None, velo = 80):
     tarr = numpy.zeros((1, note.shape[1] * note.shape[2], 4))
     timmer = 0
     delta = 0
@@ -418,7 +421,7 @@ def snote_time_to_tarray(note, time, deltam = None):
                 delta = time[i, j] if not deltam else deltam
                 tarr[i, tp, 0] = timmer
                 tarr[i, tp, 1] = note[i, j, k]
-                tarr[i, tp, 2] = 80
+                tarr[i, tp, 2] = velo
                 tarr[i, tp, 3] = delta 
                 tp += 1
             timmer += delta

@@ -12,7 +12,7 @@ from matplotlib import pyplot as plt
 # from polymuse import pattern
 
 # from scipy.interpolate import make_interp_spline, BSpline
-import numpy, random, pprint
+import numpy, random, pprint, copy
 
 import gc, os
 import warnings
@@ -23,21 +23,21 @@ warnings.filterwarnings("ignore")
 Test to understand NoteSequence
 """
 
-f1 = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Believer_-_Imagine_Dragons.mid'
-f1 = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Fur_Elise_by_Ludwig_Van_Beethoven.mid'
-f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\second_track.mid'
-f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\drum_test.mid'
-f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Drummer_Piano.mid'
+# f1 = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Believer_-_Imagine_Dragons.mid'
+# f1 = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Fur_Elise_by_Ludwig_Van_Beethoven.mid'
+# f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\second_track.mid'
+# f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\drum_test.mid'
+# f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\Drummer_Piano.mid'
 # f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\drum_sync.mid'
 # f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\dataset.mid'
 # f = 'F:\\rushikesh\\project\\polymuse-future\\midis\\test.mid'
 
 # ns = dataset.to_array(f)
-ns = dataset.to_note_sequence(f)
-# # print(ns)
-# ins = dataset.get_instrument(ns, 0)
-ar = dataset.ns_to_tarray(ns, resolution=64)
-print(ar.shape, '--ar')
+# ns = dataset.to_note_sequence(f)
+# # # print(ns)
+# # ins = dataset.get_instrument(ns, 0)
+# ar = dataset.ns_to_tarray(ns, resolution=64)
+# print(ar.shape, '--ar')
 
 # sflatroll = d2.ns_tarray_to_sFlatroll(ar)
 
@@ -398,8 +398,8 @@ through the generator
 """
 train.py ...
 """
-F = "F:\\rushikesh\\project\\dataset\\lakh_dataset"
-train.train_gpu(F, 5)
+# F = "F:\\rushikesh\\project\\dataset\\lakh_dataset"
+# train.train_gpu(F, 5)
 
 '''
 Player testing
@@ -414,10 +414,160 @@ Player testing
 """
 Track player 
 """
-F = "F:\\rushikesh\\project\\dataset\\lakh_dataset\\Kenny G"
+# F = "F:\\rushikesh\\project\\dataset\\lakh_dataset\\Kenny G"
 # F = dutils.get_all_files(F)[0]
 
 # player.play_on_3_track_no_time(F, midi_fname='midiout11')
+
+"""
+******** COLLAB ********
+"""
+# DATASET = 'F:\\rushikesh\project\dataset\lakh_dataset'
+# train.train_gpu(DATASET, maxx = 15, epochs = 100)
+
+
+# midi_file = 'I Only Want to Be With You.mid' # midi file with at least 3 tracks
+# midi_file = 'midi492.mid' # midi file with at least 3 tracks
+
+# player.play_on_3_track_no_time(midi_file, midi_fname = 'midiout00')
+
+"""
+Image Representation
+"""
+# F = 'F:\\rushikesh\project\data2'
+# F = 'F:\\rushikesh\project\dataset\lakh_dataset'
+# midis = dutils.get_all_midis(F, maxx = 100)
+# print(len(midis))
+# print(midis)
+# datagen = data_generator.NoteDataGenerator(0, midis, 32, 32, enc= False)
+
+# for i in range(10):
+#     x = datagen.__getitem__(i)
+#     print(x[0].shape, x[1].shape)
+
+# L = [[] for i in range(32)]
+# print(L, len(L))
+# import cv2
+# IMG = numpy.zeros((32, 128, 128), dtype = 'uint8')
+# for i in range(datagen.steps_per_epoch):
+#     x, y = datagen.__getitem__(i)
+#     # print(x.shape, y.shape, " >>>>>>>>>>>>>>>>>>")
+#     for j in range(x.shape[0]): # note instances iterator
+#         for k in range(x.shape[1]): # ip memmory iterator
+#             for d in range(x.shape[2]):
+#                 # print(j, k, d)
+#                 # print( y.shape, " //////////////////")
+#                 # print(y[k, d], "********************")
+#                 # print(int(x[j, k, d]), " -=-=-=-=-=-=-=")
+#                 # L[k].append([int(x[j, k, d]), y[j, d]])
+#                 xn, yn = int(x[j, k, d]), int(y[j, d])
+#                 IMG[k, xn, yn] += 1
+
+# Mx = numpy.max(IMG)
+# print(Mx, numpy.unique(IMG))
+
+# for i in range(IMG.shape[0]):
+#     IMG[i] = numpy.interp(IMG[i], (IMG[i].min(), IMG[i].max()), (1, 255))
+
+# print(IMG.max(), IMG.min(), " - - - - - - - ")
+
+# KEN = numpy.full((IMG[i].shape), 4294967295)
+
+# # IMG = IMG.astype(int)
+# MGH = copy.deepcopy(IMG[0])
+# kernel = numpy.ones((5,5), numpy.uint8)
+# for i in range(32):
+#     # img_dilation = cv2.dilate(IMG[i], kernel)
+#     img = IMG[i]
+#     if i != 0: 
+#         MGH = MGH * IMG[i]
+#         MGH = numpy.bitwise_and(MGH, KEN)
+#     # print(img.shape, ' -- shape')
+#     scale_percent = 700 # percent of original size
+#     width = int(img.shape[1] * scale_percent / 100)
+#     height = int(img.shape[0] * scale_percent / 100)
+#     dim = (width, height)
+#     # resize image
+#     img = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
+#     cv2.imwrite("./img/" + str(i) + ".jpg", img) 
+#     # for j in range(128):
+#     #     yp = numpy.where(IMG[i, j] > 0)[0]
+#     #     # print(yp)
+#     #     xp = numpy.full(yp.shape, j)
+#     #     plt.scatter(xp, yp)
+#     # plt.savefig("./img/" + str(i) + ".png")
+
+# MGH = numpy.interp(MGH, (MGH.min(), MGH.max()), (1, 255))
+
+
+
+# scale_percent = 700 # percent of original size
+# width = int(MGH.shape[1] * scale_percent / 100)
+# height = int(MGH.shape[0] * scale_percent / 100)
+# dim = (width, height)
+# # resize image
+# MGH = cv2.resize(MGH, dim, interpolation = cv2.INTER_AREA)
+# cv2.imwrite("./img/i"  + ".jpg", MGH) 
+# print(len(L), len(L[0]), "-- L")
+# L = numpy.array(L)
+# print(L.shape, "-- L")
+
+"""
+Transpose the dataset
+"""
+# import music21
+# import sys
+# F = 'F:\\rushikesh\project\dataset\lakh_dataset'
+# midis = dutils.get_all_midis(F, maxx = 1300)
+# print(len(midis))
+
+# # major conversions
+# majors1 = dict([("A-", 4),("A", 3),("B-", 2),("B", 1),("C", 0),("D-", -1),("D", -2),("E-", -3),("E", -4),("F", -5),("G-", 6),("G", 5)])
+# minors1 = dict([("A-", 1),("A", 0),("B-", -1),("B", -2),("C", -3),("D-", -4),("D", -5),("E-", 6),("E", 5),("F", 4),("G-", 3),("G", 2)])
+
+# # major conversions
+# majors = dict([("G#", 4),("A", 3),("B-", 2),("B", 1),("C", 0),("C#", -1),("D", -2),("D#", -3),("E", -4),("F", -5),("F#", 6),("G", 5)])
+# minors = dict([("G#", 1),("A", 0),("B-", -1),("B", -2),("C", -3),("C#", -4),("D", -5),("D#", 6),("E", 5),("F", 4),("F#", 3),("G", 2)])
+
+# minors.update(minors1)
+# majors.update(majors1)
+
+# print(minors, "\n", majors)
+
+# DT = 'F:/rushikesh/project/data2/'
+# with open('trkfile.csv', 'r') as ff:
+#     tfilestr = ff.read()
+
+# print(tfilestr) 
+# sett = set([f for f in tfilestr.split('\n')])
+# # print("settt : ", sett)
+# for m in midis:
+#     if m in sett: continue
+#     try:
+#         print(m)
+#         score = music21.converter.parse(m)
+#         key = score.analyze('key')
+#     #    print key.tonic.name, key.mode
+#         if key.mode == "major":
+#             halfSteps = majors[key.tonic.name]
+            
+#         elif key.mode == "minor":
+#             halfSteps = minors[key.tonic.name]
+        
+#         newscore = score.transpose(halfSteps)
+#         key = newscore.analyze('key')
+#         print (key.tonic.name, key.mode)
+#         newFileName = DT +  "C_" + m.split("\\")[-1]
+#         print(newFileName)
+#         newscore.write('midi',newFileName)
+#         sett.add(m)
+#     except Exception as e:
+#         print(e) 
+#         continue
+
+# with open('trkfile.csv', 'w') as ff:
+#     ff.write('\n'.join(sett))
+
 
 
 '''
