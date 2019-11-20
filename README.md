@@ -84,6 +84,8 @@ from polymuse import loader
 loader.load_midi()
 ```
 
+### Testing midi : Single Song Trainig
+Song : Candi Staton := Young Hearts Run Free
 
 ### Note Player
 Before using the player please train the models on dataset or load pre trained models
