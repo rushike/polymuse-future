@@ -116,18 +116,18 @@ def rmsecat(depth):
         return a
     return rmsecat_
 
-def predict(model, x, batch_size = 32):
+def predict(model, x, batch_size = 32, opshape = (2, 16)):
     IP = x.shape
-    sh = (IP[0], ) + x.shape[2:]
+    sh = (IP[0], IP[2]) + opshape
     x = x.reshape(IP[0], IP[1], -1)
     y = model.predict(x, verbose = 0)
     y = y.reshape(sh)
     return y 
 
 
-def predict_b(model, x):
+def predict_b(model, x, opshape = (2, 16)):
     IP = x.shape
-    sh = (1, ) + x.shape[2:]
+    sh = (1, IP[2]) + opshape
     x = x.reshape(IP[0], IP[1], -1)
     # print("x shape : ", x.shape)
     y = model.predict_on_batch(x)

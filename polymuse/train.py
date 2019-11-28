@@ -10,7 +10,7 @@ Note : training will done on cpu, which may take long time to train even few fil
 Raises:
     FileNotFoundError: If no midi found in specified dataset_path
 """
-def train(dataset_path, maxx = 1, trks = [1, 2, 3], graph = False, epochs=50, dev = True, cell_count= 512):
+def train(dataset_path, maxx = 1, trks = [0, 1, 2], graph = False, epochs=50, dev = True, cell_count= 512):
     f = load_dataset()
 
     # print(f)    
@@ -27,11 +27,11 @@ def train(dataset_path, maxx = 1, trks = [1, 2, 3], graph = False, epochs=50, de
         pass
 
 
-def train_gpu(dataset_path, maxx = 1, trks = [1, 2, 3], graph = False, epochs=50, dev = True, cell_count= 512):
+def train_gpu(dataset_path, maxx = 1, trks = [0, 1, 2], graph = False, epochs=50, dev = True, cell_count= 512):
     f = load_dataset(dataset_path, maxx)
     # print(f)    
     for i in trks:
-        data_gen = data_generator.NoteDataGenerator(i, f, 32, 32) #init the data generator, this makes possible to train on large dataset which cannot fit into memory
+        data_gen = data_generator.NoteDataGenerator(i, f, 32, 32, enc= True) #init the data generator, this makes possible to train on large dataset which cannot fit into memory
         print("1 : ", constant.type3tracks[i])
         
         rnn_gpu.build_sFlat_model(data_gen, typ = constant.type3tracks[i], epochs= epochs, dev= dev, cell_count= cell_count) # makes a models and train on Note data, sFlat representaion of midi, and then to octave encoding used for training 
@@ -42,7 +42,7 @@ def train_gpu(dataset_path, maxx = 1, trks = [1, 2, 3], graph = False, epochs=50
         # drawer.draw_json_loss_acc(fn1, fn2)
         pass
 
-def train_stateful_gpu(dataset_path, maxx = 1, trks = [1, 2, 3], graph = False, epochs=50, dev = True, cell_count= 512):
+def train_stateful_gpu(dataset_path, maxx = 1, trks = [0, 1, 2], graph = False, epochs=50, dev = True, cell_count= 512):
     f = load_dataset(dataset_path, maxx)
     # print(f)    
     for i in trks:

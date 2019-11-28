@@ -73,6 +73,19 @@ def enc_tm_to_tm(tm, MAX = 4):
 def thres_octave(tm):
     pass
 
+def binary(arr, bits = 8):
+    shape = arr.shape + (bits, )
+    arr = numpy.reshape(arr, -1)
+    res = numpy.zeros( arr.shape + (bits,), dtype='uint32')
+    res[:] = [binarr(v, bits) for v in arr]
+    return numpy.reshape(res, shape)
+
+def binarr(a, bits = 8):
+    res = numpy.zeros(bits)
+    ast = format(int(a), '0' + str(bits) + 'b')
+    res[:] = [int(v) for v in ast]
+    return res
+
 def to_categorical(y, num_classes=None, dtype='float32'):
     """Converts a class vector (integers) to binary class matrix.
     E.g. for use with categorical_crossentropy.

@@ -71,9 +71,10 @@ def rsingle_note_stateful_play(model_note, ini_ip, y_expected_note = None, bs = 
         
         for j in range(bs):
             for i in range(y.shape[1]):
-                ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
+                # ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
+                ocn, freqn = numpy.argmax(y[j, i, 0]),    dutils.sample(y[j, i, 1], temperature= 3)
                 y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)
-                # y[j, i] = dutils.arg_octave_max(y[j, i])    
+                # y[j, i] = dutils.arg_octave_max(y[j, i]) 
 
         notes[0, tm : tm + bs] = y
         
@@ -128,8 +129,10 @@ def rnote_track_stateful_player(mnote, ini= None, expected_note= None, TM = 8,  
         for j in range(bs):
             # print('y : ', y, y.shape)
             for i in range(y.shape[1]):
-                ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
-                y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)    
+                # ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
+                ocn, freqn = numpy.argmax(y[j, i, 0]), dutils.sample(y[j, i, 1], temperature= 3)
+                y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)   
+                # y[j, i] = dutils.arg_octave_max(y[j, i])     
 
         notes[0, tm : tm + bs] = y
         # time[0, tm : tm + bs] = y_len
@@ -296,7 +299,8 @@ def rsing_note_time_play(model_note, model_time, ini_ip, ini_ip_tm, y_expected_n
         y_len[0] = dutils.arg_max(y_len[0])
         
         for i in range(y.shape[1]):
-            ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
+            # ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
+            ocn, freqn = numpy.argmax(y[j, i, 0]), dutils.sample(y[j, i, 1], temperature= 3)
             y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)
             # y[0, i] = dutils.arg_octave_max(y[0, i])    
 
@@ -441,7 +445,8 @@ def rnote_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, 
         for j in range(bs):
             # print('y : ', y, y.shape)
             for i in range(y.shape[1]):
-                ocn, freqn = dutils.sample(y[j, i, 0], temperature= 5), dutils.sample(y[j, i, 1], temperature= 5)
+                # ocn, freqn = dutils.sample(y[j, i, 0], temperature= 5), dutils.sample(y[j, i, 1], temperature= 5)
+                ocn, freqn = numpy.argmax(y[j, i, 0]), dutils.sample(y[j, i, 1], temperature= 5)
                 y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)
 
         notes[0, tm : tm + bs] = y
@@ -459,6 +464,63 @@ def rnote_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, 
         pass
     return enc_deco.octave_to_sFlat(notes), enc_deco.enc_tm_to_tm(time)
 
+
+def rplayer(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, DEPTH = 1, predict_instances = 400, norm=128):
+    model_note = rnn.load(mnote) if type(mnote) == str else mnote
+
+    # ip_memory = ip_memory 
+    
+    inp = numpy.array([ini])
+    print('inp note shape : ', inp.shape)
+    notes_shape = (1, predict_instances) + inp.shape[2:]
+    bs = inp.shape[0]
+
+    predict_instances = (predict_instances // bs) * bs
+    
+    mem = inp.shape[1]
+    
+    notes = numpy.zeros(notes_shape)
+    # time = numpy.zeros((1, predict_instances, 64))
+    print(bs, "--bs")
+    print("notes : ", notes.shape)
+    # notes[0, :mem, :] = inp #initiating the start
+
+    for tm in range(0, predict_instances):
+        # print("loop", tm)
+        # print('inp : ', inp.shape)
+        inp = numpy.reshape(inp, (1, ip_memory,  -1))
+        y = rnn.predict_b(model_note, inp, opshape = (2, 16))
+        y = numpy.reshape(y, (1, DEPTH, 2, 16))
+        y_ = numpy.zeros((1, DEPTH))
+        # y_len = numpy.zeros((1, 64))
+        # y_len[ :, TM] = 1
+        # print(y.shape, " --------------")
+        
+        # for j in range(bs):
+        #     y_len[j] = dutils.arg_max(y_len[j])
+        for j in range(bs):
+            # print('y : ', y, y.shape)
+            for i in range(y.shape[1]):
+                ocn, freqn = numpy.argmax(y[j, i, 0]), dutils.sample(y[j, i, 1], temperature= 3)
+                y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)  
+                notes[0, tm, i] = ocn * 12 + freqn
+                y_[j, i] = ocn * 12 + freqn
+
+        
+        # time[0, tm : tm + bs] = y_len
+
+        #Note Value
+        inp = numpy.reshape(inp, (1, ip_memory, DEPTH))
+        inp = shift(inp, axis= 1)
+        add_flatroll(inp, y_)
+        y_ /= norm
+        
+        #Time Length
+        # inp_tm = shift(inp_tm, axis=1)
+        # add_flatroll(inp_tm, y_len)
+        
+        pass
+    return notes
 
 def rnote_random_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, DEPTH = 1, predict_instances = 400):
     model_note = rnn.load(mnote) if type(mnote) == str else mnote
@@ -495,7 +557,7 @@ def rnote_random_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory
         for j in range(bs):
             # print('y : ', y, y.shape)
             for i in range(y.shape[1]):
-                ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
+                ocn, freqn = numpy.argmax(y[j, i, 0]), dutils.sample(y[j, i, 1], temperature= 3)
                 y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)  
 
         notes[0, tm : tm + bs] = y
@@ -513,62 +575,49 @@ def rnote_random_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory
         pass
     return enc_deco.octave_to_sFlat(notes), enc_deco.enc_tm_to_tm(time)
 
-def rnote_track_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, DEPTH = 1, predict_instances = 400):
+
+def rnotetimebin_player(mnote, ini= None, expected_note= None, TM = 8, ip_memory = 32, DEPTH = 1, predict_instances = 400, bits= 8):
     model_note = rnn.load(mnote) if type(mnote) == str else mnote
 
     # ip_memory = ip_memory 
     
-    inp = numpy.array(ini)
+    inp = numpy.array([ini])
     print('inp note shape : ', inp.shape)
     notes_shape = (1, predict_instances) + inp.shape[2:]
-    bs = 1
+    bs = inp.shape[0]
 
     predict_instances = (predict_instances // bs) * bs
     
     mem = inp.shape[1]
     
     notes = numpy.zeros(notes_shape)
-    time = numpy.zeros((1, predict_instances, 64))
     print(bs, "--bs")
-    print("notes, time : ", notes.shape, time.shape)
-    # notes[0, :mem, :] = inp #initiating the start
-    k = 0
-    for tm in range(0, predict_instances):
-        # print("loop", tm)
+    print("notes : ", notes.shape)
 
-        if k >= inp.shape[0] and inp.shape[0] != 1: k = random.randint(0, inp.shape[0] - 1)
-        if inp.shape[0] == 0: k = 0
-        print('inp : ', inp[k].shape, "k : ", k)
-        inp_ = numpy.reshape(inp[k:k+1], (1, ip_memory,  -1))
-        y = rnn.predict_b(model_note, inp_)
+    for tm in range(0, predict_instances):
+
+        inp = numpy.reshape(inp, (1, ip_memory,  -1))
+        y = rnn.predict_b(model_note, inp, opshape = (2, 16))
         y = numpy.reshape(y, (1, DEPTH, 2, 16))
-        y_len = numpy.zeros((1, 64))
-        y_len[ :, TM] = 1
+        y_ = numpy.zeros((1, DEPTH))
         
         for j in range(bs):
             # print('y : ', y, y.shape)
             for i in range(y.shape[1]):
-                ocn, freqn = dutils.sample(y[j, i, 0], temperature= 3), dutils.sample(y[j, i, 1], temperature= 3)
-                y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)    
+                ocn, freqn = numpy.argmax(y[j, i, 0]), dutils.sample(y[j, i, 1], temperature= 3)
+                y[j, i] = dutils.arg_oct_max(ocn, freqn, size = 16)  
+                notes[0, tm, i] = enc_deco.binarr(ocn * 12 + freqn, bits= 8)
+                y_[j, i] = ocn * 12 + freqn
+                pass
+            pass
 
-        notes[0, tm : tm + bs] = y
-        time[0, tm : tm + bs] = y_len
-
-
-        k += 1
 
         #Note Value
-        # inp = numpy.reshape(inp, (1, ip_memory, DEPTH, 2, 16))
-        # inp = shift(inp, axis= 1)
-        # add_flatroll(inp, y)
-        
-        #Time Length
-        # inp_tm = shift(inp_tm, axis=1)
-        # add_flatroll(inp_tm, y_len)
-        
+        inp = numpy.reshape(inp, (1, ip_memory, DEPTH, bits))
+        inp = shift(inp, axis= 1)
+        add_flatroll(inp, y_)
         pass
-    return enc_deco.octave_to_sFlat(notes), enc_deco.enc_tm_to_tm(time)
-
+    return notes
 
 def shift(x,  off = 1, axis = 2):
     return numpy.roll(x, -1 * off, axis)

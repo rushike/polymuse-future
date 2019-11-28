@@ -101,3 +101,8 @@ player.play_3_track_no_time(midi_file, midi_fname = 'midi00')
 ```
 
 The above will store midi file in current directory with file name *midi00XXX*
+
+
+"""
+If you need to use plot option to see the model, need to install conda, pydot , pip graphviz, conda graphviz
+"""

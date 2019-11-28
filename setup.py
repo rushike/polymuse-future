@@ -14,7 +14,7 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rushike/polymuse-future",
-    install_requires=['numpy', 'magenta', 'magenta-gpu', 'keras', 'pyfiglet', 'midi2audio', 'googledrivedownloader'],
+    install_requires=['numpy', 'magenta', 'magenta-gpu', 'keras', 'pyfiglet', 'midi2audio', 'googledrivedownloader', 'sklearn', 'pydot'],
     # packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

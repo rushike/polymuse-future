@@ -45,8 +45,13 @@ from polymuse.losses import rmsecat
 from keras.losses import categorical_crossentropy, mean_squared_error
 
 from numpy import random
-random.seed(131)
-tf.set_random_seed(131)
+ra = random.randint(0, 100)
+with open("ra.txt", 'a+') as f:
+    f.write( ( "\n" + str(ra)) )
+
+random.seed(ra)
+
+tf.set_random_seed(ra)
 
 HOME = os.getcwd()
 
@@ -154,7 +159,7 @@ def load_piano_drum_dense_models():
     return tuple(op_models)
 
 def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP = None, cell_count = 256, epochs = 200, batch_size = 32, dropout = .3, dev = False, shuffle= False ):
-
+    print("Shape : ", data_gen.shape)
     model = Sequential()
     # model.add(TimeDistributed(Flatten(input_shape=IP[1:])))
 
@@ -164,20 +169,23 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
     model.add(CuDNNLSTM(cell_count, return_sequences=True))
     model.add(Dropout(dropout))
 
-    model.add(CuDNNLSTM(cell_count, return_sequences=True))
-    model.add(Dropout(dropout))
-
     model.add(CuDNNLSTM(cell_count, return_sequences=False))
     model.add(Dropout(dropout))
 
-    model.add(Dense(data_gen.shape[2]))
+    model.add(Dense(cell_count))
+
+    model.add(Dense(cell_count))
+    
+    model.add(Dense(data_gen.oshape[2]))
 
     model.add(Activation('softmax'))
 
     es = EarlyStopping(monitor = 'val_loss', mode='min', verbose=1, patience=50)
 
     # model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=['acc'])
-    model.compile(loss=rmsecat(data_gen.DEPTH), optimizer='adam', metrics=['acc'])
+    adam = Adam(lr=0.0013)
+    model.compile(loss=rmsecat(data_gen.DEPTH), optimizer=adam, metrics=['acc'])
+    # model.compile(loss='sparse_categorical_crossentropy', optimizer='adam', metrics=['acc'])
     
     # file_info = 'gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
     file_name  = ''.join(random.choice(list(string.ascii_lowercase)) for i in range(4))
@@ -247,7 +255,8 @@ def build_sFlat_model(data_gen, typ = 'piano',model_name = '000', IP = None, OP 
         model.save(F + '.h5')
 
     os.chdir(HOME)
-
+    with open('ra.txt', 'a+') as f:
+        f.write("\t\tSuccess\n")
     return model
 
 
@@ -272,7 +281,7 @@ def build_sFlat_stateful_model(data_gen, typ = 'piano',model_name = '000', IP = 
     model.add(CuDNNLSTM(cell_count, return_sequences=False))
     model.add(Dropout(dropout))
 
-    model.add(Dense(data_gen.shape[2]))
+    model.add(Dense(data_gen.oshape[2]))
 
     model.add(Activation('softmax'))
 
@@ -349,5 +358,171 @@ def build_sFlat_stateful_model(data_gen, typ = 'piano',model_name = '000', IP = 
         model.save(F + '.h5')
 
     os.chdir(HOME)
-
+    with open('ra.txt', 'a+') as f:
+        f.write("\t\tSuccess\n")
     return model
+
+
+from keras.utils import plot_model
+from keras.models import Model
+from keras.layers import Input
+from keras.layers import Dense
+from keras.layers import Flatten, CuDNNLSTM, TimeDistributed, Embedding
+from polymuse import constant
+from keras.layers.merge import concatenate
+
+def build_sflattimebin_funct(gens = None, cell_count = 256, epochs = 200, batch_size = 32, dropout = .3, dev = False, shuffle = False, train = True):
+    
+    #Lead
+    lead = Input(shape=(gens.ip_memory, constant.depths_of_3tracks[0] * gens.bits))
+    lead_lstm_0 = CuDNNLSTM(cell_count, return_sequences=True)(lead)
+    # lead_lstm_1 = CuDNNLSTM(cell_count, return_sequences=True)(lead_lstm_0)
+    # lead_lstm_2 = CuDNNLSTM(cell_count, return_sequences=False)(lead_lstm_1)
+    # lead_dense_0 = TimeDistributed(Dense(512, activation='relu')(lead_lstm_0))
+
+    #Chorus
+    chorus = Input(shape=(gens.ip_memory, constant.depths_of_3tracks[1] * gens.bits))
+    chorus_lstm_0 = CuDNNLSTM(cell_count, return_sequences=True)(chorus)
+    # chorus_lstm_1 = CuDNNLSTM(cell_count, return_sequences=True)(chorus_lstm_0)
+    # chorus_lstm_2 = CuDNNLSTM(cell_count, return_sequences=False)(chorus_lstm_1)
+    # chorus_dense_0 = TimeDistributed(Dense(512, activation='relu')(chorus_lstm_0))
+
+
+    # Drum input 
+    drum = Input(shape=(gens.ip_memory, constant.depths_of_3tracks[2] * gens.bits))
+    drum_lstm_0 = CuDNNLSTM(cell_count, return_sequences=True)(drum)
+    # drum_lstm_1 = CuDNNLSTM(cell_count, return_sequences=True)(drum_lstm_0)
+    # drum_lstm_2 = CuDNNLSTM(cell_count, return_sequences=False)(drum_lstm_1)
+    # drum_dense_0 = TimeDistributed(Dense(256, activation='relu')(drum_lstm_0))
+
+    #concatenate the layers
+    # polymuse = concatenate([lead_dense_0, chorus_dense_0, drum_dense_0])
+    polymuse = concatenate([lead_lstm_0, chorus_lstm_0, drum_lstm_0])
+
+    # polymuse_em = Embedding(output_dim=256, input_dim=constant.depths_of_3tracks[2] * gens.bits, input_length=gens.ip_memory)(polymuse
+    tm = TimeDistributed(Dense(256))(polymuse)
+    #Densing the layers
+    # polymuse_n 
+    polymuse_0 = LSTM(256, activation='relu', return_sequences=True)(tm)
+    polymuse_1 = LSTM(128, activation='relu', return_sequences= True)(polymuse_0)
+    polymuse_2 = LSTM(128, activation='relu', return_sequences= False)(polymuse_1)
+
+
+
+    #Divididing out 
+    lead_dense_1 = Dense(128, activation='relu', name = "lead_dense_1")(polymuse_2)
+    lead_dense_2 = Dense(64, activation='relu', name = "lead_dense_2")(lead_dense_1)
+    lead_dense_3 = Dense(32, activation='relu', name = "lead_track")(lead_dense_2)
+
+    
+    chorus_dense_1 = Dense(256, activation='relu', name = "chorus_dense_1")(polymuse_2)
+    chorus_dense_2 = Dense(128, activation='relu', name = "chorus_dense_2")(chorus_dense_1)
+    chorus_dense_3 = Dense(96, activation='relu', name = "chorus_track")(chorus_dense_2)
+
+    
+    drum_dense_1 = Dense(128, activation='relu', name = "drum_dense_1")(polymuse_2)
+    drum_dense_2 = Dense(96, activation='relu', name = "drum_dense_2")(drum_dense_1)
+    drum_dense_3 = Dense(64, activation='relu', name = "drum_track")(drum_dense_2)
+    
+    model = Model(inputs = [lead, chorus, drum], outputs= [lead_dense_3, chorus_dense_3, drum_dense_3], name = "Polymuse")
+
+    # print(model.summary())
+
+    # plot_model(model, to_file='polymuse_design.png')
+
+    if train: train_sflatroll(model, gens, cell_count, epochs, batch_size, dropout, dev, shuffle)
+
+    pass
+
+def train_sflatroll(model, gens = None, cell_count = 256, epochs = 200, batch_size = 32, dropout = .3, dev = False, shuffle = False ):
+    
+    losses = {
+	    "lead_track": rmsecat(1),
+	    "chorus_track": rmsecat(3),
+        "drum_track" : rmsecat(2)
+    }
+
+
+    es = EarlyStopping(monitor = 'val_loss', mode='min', verbose=1, patience=50)
+
+    # model.compile(loss="categorical_crossentropy", optimizer='adam', metrics=['acc'])
+    model.compile(loss=losses, optimizer='adam', metrics=['acc'])
+    
+    # file_info = 'gsF_' +  str(cell_count) + '_m_' + model_name +'__b_' + str(batch_size) + "_e_"+str(epochs) + "_d_" + str(dropout)  + ".h5"
+    file_name  = ''.join(random.choice(list(string.ascii_lowercase)) for i in range(4))
+
+    print('file_name : ', file_name)
+
+    # Make the dir structure for saving h5Models
+    if not os.path.exists('h5_models'): os.mkdir('h5_models')
+    os.chdir('h5_models') 
+
+
+    checkpoint = ModelCheckpoint(
+        file_name + '.h5', monitor='loss', 
+        verbose=0,        
+        save_best_only=True,        
+        mode='min'
+    )    
+    callbacks_list = [checkpoint]
+    
+    callbacks = callbacks_list
+    history = model.fit_generator(gens.train, verbose = 1, steps_per_epoch = gens.train.steps_per_epoch, epochs= epochs,  callbacks= callbacks_list, shuffle = shuffle, validation_data=gens.val, validation_steps = gens.val.steps_per_epoch // 8)
+    j = 0
+
+    print("Training Succesfull ...")
+    
+    model.save(file_name + '.h5')
+
+    print("history ", history, ', : ')
+   
+    os.chdir(HOME)
+    #making directory structure for history stores
+    if not os.path.exists('hist'): os.mkdir('hist')
+    os.chdir('hist') 
+    
+
+    
+        
+
+    with open(file_name + '.json', 'w') as json_file:
+        json.dump(history.history, json_file)
+    os.chdir(HOME)
+
+    if dev:
+        F = 'gst' + file_name + '_t' + '_c' + str(cell_count) + '_e' + str(epochs) + '_d' + str(dropout) + '_b' + str(batch_size)
+        if not os.path.exists('archive'): os.mkdir('archive')
+        os.chdir('archive') 
+        if not os.path.exists('hist'): os.mkdir('hist')
+        os.chdir('hist')
+        # if not os.path.exists('stateless'): os.mkdir('stateless')
+        # os.chdir('stateless')
+        with open( 'gst'+ file_name + '.json', 'w') as json_file:
+            json.dump(history.history, json_file)
+        os.chdir(HOME)
+
+        if not os.path.exists('archive'): os.mkdir('archive')
+        os.chdir('archive')
+        if not os.path.exists('models'): os.mkdir('models')
+        os.chdir('models')
+        
+        model.save(F + '.h5')
+
+    os.chdir(HOME)
+    with open('ra.txt', 'a+') as f:
+        f.write("\t\tSuccess\n")
+    return model
+
+
+    pass
+
+
+def predict_w(model, ini, opshape = (2, 16)):
+    # IP0, IP1, IP2 = ini[0].shape, ini[1].shape, ini[2].shape
+    # sh1, sh2, sh3 = (1, IP0[2]) + opshape, (1, IP1[2]) + opshape, (1, IP2[2]) + opshape
+    # x1, x2, x3 = ini[0].reshape(IP0[0], IP0[1], -1), ini[1].reshape(IP1[0], IP1[1], -1), ini[2].reshape(IP2[0], IP2[1], -1)
+    y = model.predict_on_batch(ini)
+    # print(y, list(v.shape for v in y))
+    return y 
+    pass
+

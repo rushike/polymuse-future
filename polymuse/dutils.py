@@ -247,7 +247,7 @@ def get_all_files(folder_path, typ = '', maxx = 1):
     return f1
 
 
-def sample(preds, temperature= 1.0, choice_random = True):
+def sample(preds, temperature= 1.0, choice_random = False):
     # helper function to sample an index from a probability array
     preds = numpy.asarray(preds).astype('float64')
     preds = numpy.log(preds) / temperature

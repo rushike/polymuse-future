@@ -80,11 +80,12 @@ def play_single_track():
 def play_3_track():
     pass
 
-def play_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guitar','choir aahs'], midi = True, midi_fname = 'default', wav = False, play = False):
+def play_3_track_no_time(input_file, raw = False, predict_instances= 10, instruments = ['piano', 'guitar','choir aahs'],  midi = True, midi_fname = 'default', wav = False, play = False):
     if not os.path.isfile(input_file): raise FileNotFoundError("Input file specified is not a file : ")
     model_home = './h5_models/'
     st = 'stateless/'
-    models = [load_model(get_mfile(state = 'stateless'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
+    # print("\n\n\n\n=========================== Model : ", get_mfile(0, state = 'stateless'))
+    models = [load_model(get_mfile(i, state = 'stateless'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
     print(models)
 
     
@@ -92,9 +93,10 @@ def play_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guita
     for i in range(3):
         x, y = data_generator.note_data(input_file, trk= i, DEPTH= constant.depths_of_3tracks[i])
         print(x.shape, y.shape, "--x , --y")
-        note, time = rnn_player.rnote_player(models[i], x, TM = constant.timec_of_3tracks[i], DEPTH= constant.depths_of_3tracks[i])
+        # note, time = rnn_player.rnote_player(models[i], x, TM = constant.timec_of_3tracks[i], DEPTH= constant.depths_of_3tracks[i])
+        note = rnn_player.rplayer(models[i], x, TM = constant.timec_of_3tracks[i], DEPTH= constant.depths_of_3tracks[i], predict_instances=predict_instances)
         # note, time = enc_deco.octave_to_sFlat(note), enc_deco.enc_tm_to_tm(time)
-        t_array = dataset.snote_time_to_tarray(note, time)
+        t_array = dataset.snote_time_to_tarray(note, None, deltam= constant.timec_of_3tracks[i])
         tarr.append(t_array)
 
     if raw: return tuple(tarr)
@@ -122,20 +124,23 @@ def play_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guita
           
     return t_array
 
-def play_on_3_track_no_time(input_file, raw = False, instruments = ['piano', 'guitar','choir aahs'], midi = True, midi_fname = 'default', wav = False, play = False):
+def play_on_3_track_no_time(input_file, raw = False, predict_instances= 10, instruments = ['piano', 'guitar','choir aahs'], midi = True, midi_fname = 'default', wav = False, play = False):
     if not os.path.isfile(input_file): raise FileNotFoundError("Input file specified is not a file : ")
     model_home = './h5_models/'
     st = 'stateless/'
-    models = [load_model(get_mfile(state = 'stateless'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
+    models = [load_model(get_mfile(i, state = 'stateless'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
     print(models)
 
     tarr = []
     for i in range(3):
         x, y = data_generator.note_data(input_file, trk= i, DEPTH= constant.depths_of_3tracks[i], all_= True)
-        print(x.shape, y.shape, "--x , --y")
-        note, time = rnn_player.rnote_track_player(models[i], x, TM = constant.timec_of_3tracks[i], DEPTH= constant.depths_of_3tracks[i])
+        # print(x.shape, y.shape, "--x , --y")
+        note= rnn_player.rnote_track_player(models[i], x, TM = constant.timec_of_3tracks[i], DEPTH= constant.depths_of_3tracks[i], predict_instances= predict_instances)
+        
+        # note = rnn_player.rplayer(models[i], x, TM = constant.timec_of_3tracks[i], DEPTH= constant.depths_of_3tracks[i], predict_instances=predict_instances)
+        
         # note, time = enc_deco.octave_to_sFlat(note), enc_deco.enc_tm_to_tm(time)
-        t_array = dataset.snote_time_to_tarray(note, time)
+        t_array = dataset.snote_time_to_tarray(note, None, deltam= constant.timec_of_3tracks[i])
         tarr.append(t_array)
 
     if raw: return tuple(tarr)
@@ -149,6 +154,8 @@ def play_on_3_track_no_time(input_file, raw = False, instruments = ['piano', 'gu
     for i in range(t_array.shape[0]):
         for j in range(t_array.shape[1]):
             if t_array[i, j, 1] > 127: t_array[i, j, 1] %= 127
+
+    # print(t_array, " ---=-=-=-= tarray")
     if midi: 
         mid_path = './' + midi_fname + str(random.randint(0, 1000)) + '.mid'
         ns_ = dataset.tarray_to_ns(t_arr= t_array, instruments= instruments, drm = 2)
@@ -177,8 +184,9 @@ def play_statefull_3track(input_file, raw = False, instruments = ['piano', 'guit
         play {bool} -- [description] (default: {False})
     """
     if not os.path.isfile(input_file): raise FileNotFoundError("Input file specified is not a file : ")
-
-    models = [load_model(get_mfile(state = 'stateful'), custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
+    model_home = './h5_models/'
+    state = 'stateful'
+    models = [load_model(dutils.get_all_files(model_home + constant.type3tracks[i] + '/stateful')[0], custom_objects= {'rmsecat_' : rmsecat(constant.depths_of_3tracks[i])}) for i in range(3)]
     print(models)
 
     
@@ -230,7 +238,7 @@ def mid_to_wav(midi_file, fs = FluidSynth()):
 def play_single_track(model, file_path = None, x = None, y = None):
     pass
 
-def get_mfile(state = 'stateless'):
+def get_mfile(i, state = 'stateless'):
     model_home = './h5_models/'
-    f = dutils.get_all_files(model_home + constant.type3tracks[i] + state)
+    f = dutils.get_all_files(model_home + constant.type3tracks[i] + "\\" + state)
     return random.choice(f)

@@ -213,69 +213,125 @@ def ip_patterns_to_inp_shape(ip_pat, shape = (1, 32, 1, 2, 16)):
 
 
 def ns_tarray_to_sFlatroll(tarray, quanta = 1, depth = 3):
-    #quata : 1 32ndth note
-    tarray = numpy.array(tarray, 'int32')
-    # print(tarray)
+    #quata : 1 32nd note
+    #quata : 2 16th note
+    #quata : 4 08th note
+    #quata : 8 04th note
+    tarray[:, :, 0] = tarray[:, :, 0] / quanta + tarray[:, :, 0] % 2
+    tarray[:, :, 3] = tarray[:, :, 3] / quanta + tarray[:, :, 3] % 2
+    
+    tarray = numpy.array(tarray, dtype= 'int32')
+
     size = tarray[:][:][0].max() + 3
-    print(size, "--size")
+    # print(size, "--size")
     sflatroll = numpy.zeros((len(tarray), size, depth))
     dp = numpy.zeros(size, dtype='int32')
     for i, t in enumerate(tarray):
         prev_tm = 0
         dp.fill(0)
         for j, v in enumerate(t):
-            # print(v[0])
             if dp[tarray[i][j][0]] >= depth: continue
             sflatroll[i, tarray[i][j][0] : tarray[i][j][0] + tarray[i][j][3] , dp[tarray[i][j][0]]] = tarray[i][j][1]
             dp[tarray[i][j][0] : tarray[i][j][0] + tarray[i][j][3]]  += 1
-
+    # print(sflatroll)
     return sflatroll
 
-def sFlatroll_to_ns_tarray(roll):
-    lis = []
-    depth =  roll.shape[2]
-    prevcount = numpy.zeros(depth)
-    prev = numpy.zeros(depth)
-    i = 0
-    def check_insertion(row):
-        if lis != []:
-            prevrow = lis[-1]
-            if prevrow[0] == row[0] and row[3] > prevrow[3]:
-                lis.pop(-1)
-                lis.append(row)
-                lis.append(prevrow)
-            else : lis.append(row)
-        else : lis.append(row)
+# def sFlatroll_to_ns_tarray(roll, quanta= 1):
+#     print("roll shape  : ", roll, roll.shape)
+#     lis = []
+#     depth =  roll.shape[2]
+#     prevcount = numpy.zeros(depth)
+#     prev = numpy.zeros(depth)
+#     i = 0
+#     def check_insertion(row):
+#         if lis != []:
+#             prevrow = lis[-1]
+#             if prevrow[0] == row[0] and row[3] > prevrow[3]:
+#                 lis.pop(-1)
+#                 lis.append(row)
+#                 lis.append(prevrow)
+#             else : lis.append(row)
+#         else : lis.append(row)
     
-    def to_insert(j):
-        elecount = prevcount[j] // prev[j] #int division 
-        elestart = i - elecount
-        row = [elestart, prev[j], 80, elecount]
-        check_insertion(row) 
+#     def to_insert(j):
+#         elecount = prevcount[j] // prev[j] #int division 
+#         elestart = abs(i - elecount) 
+#         row = [elestart, prev[j], 80, elecount]
+#         check_insertion(row) 
         
 
 
-    for ti in range(roll.shape[0]):
-        for i in range(roll.shape[1]):
-            ele = 0
-            for j in range(depth):
-                ele = roll[ti, i, j] #the element
-                if ele != prev[j] and prev[j] != 0:
-                    to_insert(j)
+#     for ti in range(roll.shape[0]):
+#         for i in range(roll.shape[1]):
+#             ele = 0
+#             for j in range(depth):
+#                 ele = roll[ti, i, j] #the element
+#                 if ele != prev[j] and prev[j] != 0:
+#                     to_insert(j)
 
-                    prev[j] = ele
-                    prevcount[j] = ele
+#                     prev[j] = ele
+#                     prevcount[j] = ele
+#                 else:
+#                     if prev[j] == 0: prev[j] = ele
+#                     prevcount[j] += ele
+        
+#         for j in range(depth):
+#             if prev[j] == 0: continue
+#             to_insert(j)
+
+#     tarray = numpy.array([lis])
+#     print(tarray)
+#     print("res shape : ", tarray.shape)
+#     tarray[:, :, 0] = (tarray[:, :, 0] - tarray[:, :, 0] % 2) * quanta
+#     tarray[:, :, 3] = (tarray[:, :, 3]  - tarray[:, :, 3] % 2) * quanta 
+    # tarray[tarray[:, :, 0] % 2 == 1] *= quanta + 1
+    # tarray[tarray[:, :, 0] % 2 == 0] *= quanta
+    # tarray[tarray[:, :, 3] % 2 == 1] *= quanta + 1
+    # tarray[tarray[:, :, 3] % 2 == 0] *= quanta 
+
+
+
+
+def sFlatroll_to_ns_tarray(roll, quanta= 1, trk=0,  tm = None):
+    # print("roll shape  : ", roll, roll.shape)
+    tm = constant.timec_of_3tracks[trk] if not tm else tm
+    lis = numpy.zeros((roll.shape[0], roll.shape[0] * roll.shape[1] * roll.shape[2], 4), dtype='uint32') # ptr to tarray
+    dptr = numpy.zeros(roll.shape[2], dtype='int32')
+    
+    tmx = 0
+    for i in range(roll.shape[0]):
+        tm = 0
+        for j in range(roll.shape[1]):
+            for k in range(roll.shape[2]):
+                if roll[i, j, k] == lis[i, dptr[k], 1] and j == 0: #start
+                    # print("start : ", i, j , k, dptr[k])
+                    dptr[k] = tm
+                    lis[i, dptr[k]] = [0, int(roll[i, j, k]) & 0x7f, 80, quanta]
+                    tm += 1
+                    pass
+                elif roll[i, j, k] == lis[i, dptr[k], 1] and lis[i, dptr[k], 3] < tm:
+                    # print("same : ", i, j , k, dptr[k])
+                    lis[i, dptr[k], 3] += quanta
+                    pass
                 else:
-                    if prev[j] == 0: prev[j] = ele
-                    prevcount[j] += ele
-        
-        for j in range(depth):
-            if prev[j] == 0: continue
-            to_insert(j)
-        
-        print(lis)
+                    # print("differnt : ", i, j , k, dptr[k])
+                    dptr[k] = tm
+                    lis[i, dptr[k]] = [j * quanta, int(roll[i, j, k]) & 0x7f, 80, quanta]
+                    tm += 1
+                    pass
+                pass
+            pass
+        tmx = tmx if tm < tmx else tm
+        pass
+    lis = lis[:, :tm]
+    if tm:
+        lis[:, :, 3] = tm
+    # print("lis  : ",  lis, lis.shape)
+    return lis
+    pass
 
-
+    
+    
 # def sFlatroll_to_ns_tarray(roll):
 #     tarr = []
 #     depth = roll.shape[2]

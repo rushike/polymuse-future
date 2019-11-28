@@ -176,6 +176,7 @@ def default_ns():
 
 
 def tarray_to_ns(t_arr, instruments = None, zero_based = True, drm = None):
+    # print(numpy.array(t_arr, dtype= 'int32'), '-------------------tarr')
     ns = default_ns()
     timmer = 0
     delta = 0
@@ -192,16 +193,18 @@ def tarray_to_ns(t_arr, instruments = None, zero_based = True, drm = None):
         for j in range(t_arr.shape[1]):
             if t_arr[i, j, 3] == 0 and zero_based: continue
             delta = t_arr[i, j, 3] / MULT if t_arr[i, j, 0] != 0 else 0
+            timmer = t_arr[i, j, 0] / MULT 
             if t_arr[i, j, 1] == 0 or t_arr[i, j, 2] == 0:
                 timmer += delta
             note = ns.notes.add()
+            # print("timmer : ", timmer, delta)
             note.instrument = i
             if not d_drk[i] : note.program = instruments[i]
             note.is_drum = d_drk[i]
             note.start_time =  timmer
-            timmer += delta
+            # timmer += delta
             
-            note.end_time = timmer 
+            note.end_time = timmer + delta
             
             note.pitch = int(t_arr[i, j, 1])
             note.velocity = int(t_arr[i, j, 2])
@@ -229,7 +232,7 @@ def ns_tarray_to_time(t_arr):
     cp_t_arr = cp_t_arr[~numpy.all(cp_t_arr == 0, axis=2)]
     return numpy.reshape(cp_t_arr, (1,) + cp_t_arr.shape)
 
-def ns_tarray_to_sFlat(t_arr, DEPTH = 2):
+def ns_tarray_to_sFlat2(t_arr, DEPTH = 2):
     """It is only the note representaion of sequence
     ### Verified
     Arguments:
@@ -251,11 +254,7 @@ def ns_tarray_to_sFlat(t_arr, DEPTH = 2):
         
         st_arr = sorted(lis[i], key=lambda x: x[0] if x[0] != 0 else sys.maxsize)
 
-        # print(st_arr[:10], t_arr[:10])
         t_arr = numpy.array([st_arr])
-        # print(st_arr)
-        # print(st_arr[:10], t_arr[:10])
-
 
         for j in range(t_arr.shape[1]):
             if dep == DEPTH: 
@@ -275,12 +274,78 @@ def ns_tarray_to_sFlat(t_arr, DEPTH = 2):
              
     tm_max = max([len(v) for v in sflat])
     
-    # print("sfffff : ", sflat)
-    # print("tm____max_________________________ : ", tm_max)
-    # print(sflat, "--sflat")
-
     #triming the array
     sflat_arr = numpy.zeros((t_arr.shape[0], tm_max + 1, DEPTH), dtype = 'int32') #because tm_max is zeo based indexing
+    for i in range(sflat_arr.shape[0]):
+        for j in range(len(sflat[i])):
+            for k in range(sflat_arr.shape[2]):
+                sflat_arr[i, j, k] = sflat[i][j][k]
+    return sflat_arr
+
+
+def ns_tarray_to_sFlat(t_arr, DEPTH = 2, iftime = False):
+    """It is only the note representaion of sequence
+    ### Verified
+    Arguments:
+        t_arr {ns_tarray-->numpy.ndarray} -- [description]
+        SPREAD {[int]} -- [description]
+    
+    Returns:
+        [type] -- [description]
+    """
+    sflat = []
+    tm, tm_max, dep = 0, 0, 0
+    lis = t_arr.tolist()
+    # print("tarr : ", t_arr)
+    do = 1 if iftime else 0
+    print("do : ", do)
+    for i in range(t_arr.shape[0]):
+        ctime, aflag = -1, False
+        interv = 0
+        sflat.append([])
+        # sflat[i].append([0 for _ in range(DEPTH)])
+        if iftime: 
+            abvp = [t_arr[0, 0, 3]]
+            abvp.extend(list([0 for _ in range(DEPTH)]))
+        else: abvp = [0 for _ in range(DEPTH)]
+        sflat[i].append(abvp)
+        tm, dep = -1, do # tm -1 initiator
+        
+        # print("sFlat -____________- : ", sflat[i][0])
+
+        st_arr = sorted(lis[i], key=lambda x: x[0] if x[0] != 0 else sys.maxsize)
+
+        t_arr = numpy.array([st_arr])
+
+        for j in range(t_arr.shape[1]):
+            if dep == DEPTH + do: 
+                dep = do
+            if ctime == t_arr[i, j, 0] and dep == do: 
+                continue
+            elif ctime != t_arr[i, j, 0]:
+
+                if iftime: 
+                    abvp= [t_arr[i, j, 3]]
+                    abvp.extend([0 for _ in range(DEPTH)])
+                else: abvp= [0 for _ in range(DEPTH)]
+                sflat[i].append(abvp)
+                tm += 1
+                dep = do
+            if ctime + interv != t_arr[i, j, 0]:
+                sflat[i][tm][1] = 0
+                dep = do
+                ctime += interv
+                continue
+            # print("DEP : ", dep, len(sflat[i][tm]), iftime)
+            sflat[i][tm][dep] = int(t_arr[i, j, 1])
+            ctime = t_arr[i, j, 0]
+            interv = t_arr[i, j, 3]
+            dep += 1
+             
+    tm_max = max([len(v) for v in sflat])
+
+    #triming the array
+    sflat_arr = numpy.zeros((t_arr.shape[0], tm_max + 1, DEPTH + do), dtype = 'int32') #because tm_max is zeo based indexing
     for i in range(sflat_arr.shape[0]):
         for j in range(len(sflat[i])):
             for k in range(sflat_arr.shape[2]):
@@ -414,15 +479,16 @@ def snote_time_to_tarray(note, time, deltam = None, velo = 80):
     timmer = 0
     delta = 0
     tp = 0
+    # print("sFlat : ", note)
     for i in range(tarr.shape[0]):
         for j in range(note.shape[1]):
             for k in range(note.shape[2]):
-                if note[i, j, k] == 0: continue
+                # if note[i, j, k] == 0: continue
                 delta = time[i, j] if not deltam else deltam
                 tarr[i, tp, 0] = timmer
-                tarr[i, tp, 1] = note[i, j, k]
-                tarr[i, tp, 2] = velo
-                tarr[i, tp, 3] = delta 
+                tarr[i, tp, 1] = note[i, j, k] if note[i, j ,k] != 0 else 60
+                tarr[i, tp, 2] = velo if note[i, j, k] != 0 else 0
+                tarr[i, tp, 3] = delta  
                 tp += 1
             timmer += delta
     return tarr
@@ -446,7 +512,7 @@ def add_lead_in_sFlat(sroll, lead_roll):
     return res_roll
 
 
-def prepare_sFlat_data(notes, track_range = None, enc_shape = (2, 16), ip_memory = 32, depth = 2, spread = 16):
+def prepare_sFlat_data(notes, track_range = None, enc_shape = (1,), ip_memory = 32, depth = 2, spread = 16):
         """Prepares data for the network(RNN) in ip/op format. Here called data_in, data_out.
         With so callled vocab_size of ip_memory
         
@@ -479,9 +545,10 @@ def prepare_sFlat_data(notes, track_range = None, enc_shape = (2, 16), ip_memory
             for i in range(le - ip_memory):
                 start, end = i, i + ip_memory
                 buf_size = ip_memory if end < le else le -  start # only reason due to logic below else not needed
-                buffer = numpy.zeros((ip_memory, depth,) + enc_shape)
-                # print(buffer.shape)
+                buffer = numpy.zeros((ip_memory, depth,))
+                # print("buff shape : ", buffer.shape)
                 buffer[:buf_size, :] = nt[start : start + buf_size]
+
                 data_in[tr].append(buffer)
                 
                 data_out[tr].append((nt[end] if end < le else notes[0][0]))
@@ -492,7 +559,7 @@ def prepare_sFlat_data(notes, track_range = None, enc_shape = (2, 16), ip_memory
 
         return numpy.array(data_in), numpy.array(data_out)
 
-def prepare_time_data(ntime, track_range = None, enc_shape = (32, ), ip_memory = 32, spread = 32):
+def prepare_time_data(ntime, track_range = None, enc_shape = (1, ), ip_memory = 32, spread = 32):
     track_range = track_range if track_range else [0, 1]
          
     data_in, data_out = [], []
@@ -512,7 +579,6 @@ def prepare_time_data(ntime, track_range = None, enc_shape = (32, ), ip_memory =
             start, end = i, i + ip_memory
             buf_size = ip_memory if end < le else le -  start # only reason due to logic below else not needed
             buffer = numpy.zeros((ip_memory, ) + enc_shape)
-            # print(buffer.shape)
             buffer[:buf_size, :] = nt[start : start + buf_size]
             data_in[tr].append(list(buffer))
             

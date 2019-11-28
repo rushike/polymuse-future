@@ -116,7 +116,7 @@ def view_2D(arr2D, xaxis = None, xname= 'X', yname= 'Tonal Span', title = 'Track
         ax.legend()
     plt.show()
 
-def view_2D_list(arr2D, xaxis = None, MX = None, xname= 'X', yname= 'Tonal Span', title = 'Track', xlabel = None, ylabel = None):
+def view_2D_list(arr2D, xaxis = None, MX = None, xname= 'X', yname= 'Tonal Span', title = 'Track', xlabel = None, ylabel = None, align= 'bottom right'):
     ts = numpy.ceil(numpy.sqrt(arr2D[0].shape[0]))
 
     fig = plt.figure()
@@ -134,14 +134,14 @@ def view_2D_list(arr2D, xaxis = None, MX = None, xname= 'X', yname= 'Tonal Span'
             ax.title.set_text(title + " " + str(i))
             ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
-            ax.legend(loc = "upper right")
+            ax.legend(loc = align)
     plt.show()
 
 
-def view_1D(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span', xlabel = None, ylabel = None):
+def view_1D(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span', xaxis = None, xlabel = None, ylabel = None,  MX = None):
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
-    x = numpy.arange(arr1D.shape[0])
+    x = numpy.arange(arr1D.shape[0]) if not xaxis else xaxis
     ax = fig.add_subplot(1, 1, 1)
     ax.plot(x, arr1D, label = yname + ' vs Time ')
     ax.title.set_text(title)
@@ -150,18 +150,18 @@ def view_1D(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span', xlabel = Non
     ax.legend()
     plt.show()
 
-def view_1D_list(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span', xlabel = None, ylabel = None):
+def view_1D_list(arr1D, xname= 'X',title = 'One D', yname= 'Tonal Span',  xaxis = None,xlabel = None, MX= None, ylabel = None):
     fig = plt.figure()
     fig.subplots_adjust(hspace=0.4, wspace=0.4)
     ar  = [arr1D[i].shape[0] for i in range(len(arr1D))]
-    MX = min(ar)
-    x = numpy.arange(MX)
+    MX = min(ar) if not MX else MX
+    x = numpy.arange(MX) if not xaxis else xaxis
     for i in range(len(arr1D)):
         ax = fig.add_subplot(1, 1, 1)
-        ax.plot(x, arr1D[i][:MX], label = yname + ' vs Time ')
+        ax.plot(x, arr1D[i][:MX], label = yname + str(i))
         ax.title.set_text(title)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
+        ax.set_xlabel(xlabel,fontweight= 'bold')
+        ax.set_ylabel(ylabel,fontweight= 'bold')
         ax.legend()
     plt.show()
 

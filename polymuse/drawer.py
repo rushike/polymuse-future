@@ -1,11 +1,22 @@
 import matplotlib.pyplot as plt
 import numpy, json
-
+import matplotlib 
 
 """
 This files has some function to draw the traing results. Like training losses, accuraces
 """
 
+font = {'family' : 'normal',
+        'weight' : 'bold',
+        'size'   : 22}
+
+lines = {
+        'linewidth': 7,
+        }
+
+
+matplotlib.rc('lines', **lines)
+matplotlib.rc('font', **font)
 
 def draw_json_loss_acc(j_fn, j_ft): #draw note and time
     with open(j_fn, 'r') as j_file:
@@ -173,4 +184,19 @@ def draw_json_loss_acc_1(j_fn): #draw note and time
     ax.legend()
 
 
+    plt.show()
+
+
+def draw_sFlat(seq:list, xtickshead:list, ytickshead:list, labels: list):
+    #seq : - sFlat list
+    #sFlat : - tracks, note_instances, depth
+    for i, s in enumerate(seq):
+        x = numpy.arange(s.shape[1])
+        y = s[0, :, 0]
+
+        plt.plot(x, y, label= labels[i])
+        plt.xlabel(xtickshead[i])
+        plt.ylabel([ytickshead[i]])
+    
+    plt.legend()
     plt.show()
